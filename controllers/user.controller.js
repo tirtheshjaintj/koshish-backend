@@ -4,12 +4,9 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-
 const signup = asyncHandler(async (req, res) => {
-
-    const { name, email, phone_number, address, password } = req.body;
+    const { name, email, phone_number, password } = req.body;
     const otp = crypto.randomInt(100000, 999999).toString(); // Generate OTP
-
     try {
         // Check if the user with the given email already exists and is verified
         const existingUser = await User.findOne({ email, verified: true });
@@ -27,11 +24,10 @@ const signup = asyncHandler(async (req, res) => {
         const newUser = await User.findOne({ email, verified: false });
 
         if (!newUser) {
-            user = await User.create({ name, email, phone_number, address, password, otp });
+            user = await User.create({ name, email, phone_number, password, otp });
         } else {
-            // Update existing useer
+            // Update existing unverified user
             newUser.phone_number = phone_number;
-            newUser.address = address;
             newUser.otp = otp; // Set OTP
             newUser.password = password;
             await newUser.save();
@@ -40,12 +36,10 @@ const signup = asyncHandler(async (req, res) => {
 
         const mailStatus = await sendMail('Placement Preparation: Your OTP Code', email, `Your OTP code is ${otp}`);
         if (mailStatus) {
-            // Respond with success and the created user
             res.status(201).json({ status: true, message: 'Verification is Needed!', user });
         } else {
             res.status(500).json({ status: false, message: 'Failed to send OTP.' });
         }
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -53,8 +47,6 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-
-
     const { email, password } = req.body;
 
     try {
@@ -69,12 +61,16 @@ const login = asyncHandler(async (req, res) => {
         }
 
         const token = setUser(user);
-        const rec_email = user.email;
-        const mailStatus = await sendMail('Placement Preparation: You Logged In as User on new Device', rec_email,
-            `Placement Preparation Just wanted to let you know that your account has been loggedIn in a new device`);
+        const mailStatus = await sendMail(
+            'Placement Preparation: You Logged In as User on new Device',
+            user.email,
+            `Your account has been logged in on a new device.`
+        );
+
         if (!mailStatus) {
-            console.error("Failed to send welcome email.");
+            console.error("Failed to send login notification email.");
         }
+
         return res.status(200).json({ status: true, message: 'Login successful!', token });
     } catch (error) {
         console.log(error);
@@ -83,16 +79,14 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-
-
-    const { name, email, phone_number, address } = req.body;
+    const { name, email, phone_number } = req.body;
 
     try {
-        const userId = req.user.id; // Assuming user ID is extracted from a middleware
+        const userId = req.user.id; // Assuming user ID is extracted from middleware
 
         const user = await User.findByIdAndUpdate(
             userId,
-            { name, email, phone_number, address },
+            { name, email, phone_number },
             { new: true, runValidators: true }
         );
 
@@ -107,8 +101,6 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 const verifyOtp = asyncHandler(async (req, res) => {
-
-
     const { otp } = req.body;
     const { userid } = req.params;
 
@@ -119,14 +111,18 @@ const verifyOtp = asyncHandler(async (req, res) => {
         }
 
         await User.findByIdAndUpdate(user._id, { verified: true, otp: null });
-        const mailStatus = await sendMail('Placement Preparation: Account Verified Successfully ✅', user.email, `Hello ${user.name}, Congratulations 🎉 your account is now verified and now you can start buying products.`);
+        const mailStatus = await sendMail(
+            'Placement Preparation: Account Verified Successfully ✅',
+            user.email,
+            `Hello ${user.name}, Congratulations 🎉 your account is now verified.`
+        );
 
         if (!mailStatus) {
-            res.status(500).json({ status: false, message: 'Internal Server Error' });
+            res.status(500).json({ status: false, message: 'Failed to send verification email.' });
         }
 
         const token = setUser(user);
-        res.status(200).json({ status: true, message: 'Login successful!', token });
+        res.status(200).json({ status: true, message: 'Verification successful!', token });
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
@@ -159,7 +155,7 @@ const getUser = asyncHandler(async (req, res) => {
     try {
         const userId = req.user.id;
         const user = await User.findById(userId).select("-password -otp -__v -verified");
-        if (!user) return res.status(500).json({ status: false, message: 'User Not Found' });
+        if (!user) return res.status(404).json({ status: false, message: 'User Not Found' });
         return res.status(200).json({ status: true, message: "User Fetched", user });
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -184,7 +180,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
             res.status(500).json({ status: false, message: 'Failed to send OTP.' });
         }
     } catch (error) {
-        res.status(500).json({ status: false, message: 'Failed to send OTP.' });
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 });
 
