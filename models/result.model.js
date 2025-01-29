@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Event = require("./event.model");
+const Class = require("./class.model");
 
 const resultSchema = new mongoose.Schema({
     eventId: {
@@ -7,7 +9,6 @@ const resultSchema = new mongoose.Schema({
         required: [true, "Event ID is required"], // Ensures eventId is provided
         validate: {
             validator: async function (value) {
-                const Event = mongoose.model("Event");
                 const eventExists = await Event.findById(value);
                 return eventExists !== null; // Ensures the event exists in the database
             },
@@ -20,7 +21,6 @@ const resultSchema = new mongoose.Schema({
         required: [true, "Class ID is required"], // Ensures classId is provided
         validate: {
             validator: async function (value) {
-                const Class = mongoose.model("Class");
                 const classExists = await Class.findById(value);
                 return classExists !== null; // Ensures the class exists in the database
             },

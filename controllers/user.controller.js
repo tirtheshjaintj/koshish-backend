@@ -6,7 +6,7 @@ const asyncHandler = require("express-async-handler");
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password } = req.body;
-    const otp = crypto.randomInt(100000, 999999).toString(); // Generate OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
     try {
         // Check if the user with the given email already exists and is verified
         const existingUser = await User.findOne({ email, verified: true });
@@ -26,9 +26,8 @@ const signup = asyncHandler(async (req, res) => {
         if (!newUser) {
             user = await User.create({ name, email, phone_number, password, otp });
         } else {
-            // Update existing unverified user
             newUser.phone_number = phone_number;
-            newUser.otp = otp; // Set OTP
+            newUser.otp = otp;
             newUser.password = password;
             await newUser.save();
             user = newUser;
