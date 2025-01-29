@@ -1,11 +1,11 @@
-const User = require('../models/user.model');
-const { setUser } = require('../helpers/jwt.helper');
-const sendMail = require('../helpers/mail.helper');
+const User = require('../models/user.model.js');
+const { setUser } = require('../helpers/jwt.helper.js');
+const sendMail = require('../helpers/mail.helper.js');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
 const signup = asyncHandler(async (req, res) => {
-    const { name, email, phone_number, password } = req.body;
+    const { name, email, phone_number, password, user_type} = req.body;
     const otp = crypto.randomInt(100000, 999999).toString();
     try {
         // Check if the user with the given email already exists and is verified

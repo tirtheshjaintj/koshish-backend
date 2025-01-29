@@ -86,6 +86,10 @@ const eventSchema = new mongoose.Schema({
             },
             message: "Points must be exactly 3 values and sorted in descending order"
         }
+    },
+    is_active:{
+        type:Boolean,
+        default:false
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
