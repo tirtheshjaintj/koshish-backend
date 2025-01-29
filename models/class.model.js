@@ -31,7 +31,7 @@ const classSchema = new mongoose.Schema({
         required: [true, "Class type is required"]
     }
 }, {
-    timestamps: true // Automatically adds createdAt and updatedAt timestamps
+    timestamps: true 
 });
 
 const Class = mongoose.model("Class", classSchema);
