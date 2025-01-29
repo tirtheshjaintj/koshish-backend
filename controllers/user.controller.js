@@ -1,6 +1,6 @@
-const User = require('../models/user.model');
-const { setUser } = require('../helpers/jwt.helper');
-const sendMail = require('../helpers/mail.helper');
+const User = require('../models/user.model.js');
+const { setUser } = require('../helpers/jwt.helper.js');
+const sendMail = require('../helpers/mail.helper.js');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
