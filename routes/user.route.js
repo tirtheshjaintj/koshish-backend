@@ -67,9 +67,6 @@ router.post('/verify-otp/:userid',
     [
         check('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits.'),
         check('userid').isMongoId().withMessage('Invalid User ID.'),
-        check('user_type')
-        .exists().withMessage('User type is required')
-        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     validate,
     verifyOtp
