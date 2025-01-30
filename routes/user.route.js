@@ -13,7 +13,6 @@ const {
     google_login
 } = require('../controllers/user.controller');
 const { validate } = require('../middlewares/validate');
-
 const router = express.Router();
 
 
@@ -26,8 +25,12 @@ router.post('/signup',
         check('email').isEmail().withMessage('Please enter a valid email address.'),
         check('phone_number').matches(/^[0-9]{10}$/).withMessage('Phone number must contain exactly 10 digits.'),
         check('address').isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.'),
-        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.')
+        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
+        check('user_type')
+        .exists().withMessage('User type is required')
+        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')    
     ],
+    restrictLogIn,
     validate,
     signup
 );
@@ -35,7 +38,10 @@ router.post('/signup',
 router.post('/login',
     [
         check('email').isEmail().withMessage('Please enter a valid email address.'),
-        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.')
+        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
+        check('user_type')
+        .exists().withMessage('User type is required')
+        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     validate,
     login
@@ -47,8 +53,12 @@ router.put('/update',
         check('name').optional().matches(/^[a-zA-Z\s]+$/).withMessage('Name must contain only letters and spaces.'),
         check('email').optional().isEmail().withMessage('Please enter a valid email address.'),
         check('phone_number').optional().matches(/^[0-9]{10}$/).withMessage('Phone number must contain exactly 10 digits.'),
-        check('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.')
+        check('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.'),
+        check('user_type')
+        .exists().withMessage('User type is required')
+        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
+    restrictLogIn,
     validate,
     updateUser
 );
@@ -56,7 +66,10 @@ router.put('/update',
 router.post('/verify-otp/:userid',
     [
         check('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits.'),
-        check('userid').isMongoId().withMessage('Invalid User ID.')
+        check('userid').isMongoId().withMessage('Invalid User ID.'),
+        check('user_type')
+        .exists().withMessage('User type is required')
+        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     validate,
     verifyOtp

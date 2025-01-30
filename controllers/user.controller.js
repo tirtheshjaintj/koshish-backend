@@ -1,6 +1,6 @@
-const User = require('../models/user.model.js');
-const { setUser } = require('../helpers/jwt.helper.js');
-const sendMail = require('../helpers/mail.helper.js');
+const User = require('../models/user.model');
+const { setUser } = require('../helpers/jwt.helper');
+const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
@@ -205,29 +205,7 @@ const google_login = asyncHandler(async (req, res) => {
         let user = await User.findOne({ email });
 
         if (!user) {
-            // Generate random details for signup
-            const randomPassword = Math.random().toString(36).slice(-8); // Random strong password of length 8
-            const randomPhoneNumber = `9${Math.floor(100000000 + Math.random() * 900000000)}`; // Random unique 10-digit phone number
-            const dummyAddress = "Dummy Address, Not Provided";
-            // Create a new user with the provided Google ID and other dummy details
-            user = await User.create({
-                name,
-                email,
-                google_id,
-                phone_number: randomPhoneNumber,
-                address: dummyAddress,
-                password: randomPassword,
-                verified: true, // Mark user as verified since logged in with Google
-            });
-            // Optionally, send a welcome email with login details (optional step)
-            const welcomeMailStatus = await sendMail(
-                "Placement Preparation: You Logged In as User on new Device!",
-                email,
-                `Dear ${name},\n\nYour account has been successfully created via Google Login.\n\nLogin Details:\nEmail: ${email}\nTemporary Password: ${randomPassword}\n\nPlease change your password after login.`
-            );
-            if (!welcomeMailStatus) {
-                console.error("Failed to send welcome email.");
-            }
+           return res.status(401).json({status:false,message:"Account Not Found"});
         } else {
             // If the user exists, validate Google ID
             if (user.google_id && user.google_id !== google_id) {
