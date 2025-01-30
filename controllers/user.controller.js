@@ -7,14 +7,14 @@ const asyncHandler = require("express-async-handler");
 const validUserTypes = ["Admin", "Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
-    const { name, email, phone_number, password, user_type} = req.body;
+    const { name, email, phone_number, password, user_type } = req.body;
     try {
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
         // Check if the user with the given email already exists and is verified
         const existingUser = await User.findOne({ email });
-        if (existingUser){
+        if (existingUser) {
             return res.status(400).json({ status: false, message: 'User already exists with this email.' });
         }
 
@@ -24,14 +24,9 @@ const signup = asyncHandler(async (req, res) => {
             return res.status(400).json({ status: false, message: 'User already exists with this phone number.' });
         }
 
-        const user = await User.create({ name,email,phone_number,user_type, password });        
-        
-        const mailStatus = await sendMail('PCTE Koshish Planning: Your OTP Code', email, `Your OTP code is ${otp}`);
-        if (mailStatus) {
-            res.status(201).json({ status: true, message: 'Verification is Needed!', user });
-        } else {
-            res.status(500).json({ status: false, message: 'Failed to send OTP.' });
-        }
+        const user = await User.create({ name, email, phone_number, user_type, password });
+        res.status(201).json({ status: true, message: 'User Registered!', user });
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -39,13 +34,13 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password,user_type} = req.body;
+    const { email, password, user_type } = req.body;
 
     try {
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
-        const user = await User.findOne({ email,user_type});
+        const user = await User.findOne({ email, user_type });
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid email or password.' });
         }
@@ -100,12 +95,12 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const { userid } = req.params;
 
     try {
-        const user = await User.findOne({ _id: userid,otp});
+        const user = await User.findOne({ _id: userid, otp });
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid OTP or user already verified.' });
         }
 
-        await User.findByIdAndUpdate(user._id, {otp: null });
+        await User.findByIdAndUpdate(user._id, { otp: null });
         const mailStatus = await sendMail(
             'PCTE Koshish Planning: Account Verified Successfully ✅',
             user.email,
@@ -167,7 +162,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         user.otp = otp; // Save OTP in the user document
         await user.save();
 
-        const mailStatus = await sendMail('PCTE Koshish Planning: Your OTP Code to Reset Password', user.email, `Your OTP code to Reset Password is ${otp}`);
+        const mailStatus = await sendMail(`PCTE Koshish Planning: Your OTP Code ${otp} to Reset Password`, user.email, `Your OTP code to Reset Password is ${otp}`);
 
         if (mailStatus) {
             res.status(200).json({ status: true, message: 'OTP Sent to your Email!' });
@@ -182,7 +177,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const changePassword = asyncHandler(async (req, res) => {
     try {
         const { email, otp, password } = req.body;
-        const user = await User.findOne({ email, otp});
+        const user = await User.findOne({ email, otp });
         if (!user) return res.status(404).json({ status: false, message: 'OTP Not Correct' });
         user.password = password;
         user.otp = null;
@@ -200,7 +195,7 @@ const google_login = asyncHandler(async (req, res) => {
         // Check if the user exists
         let user = await User.findOne({ email });
         if (!user) {
-           return res.status(401).json({status:false,message:"Account Not Found"});
+            return res.status(401).json({ status: false, message: "Account Not Found" });
         } else {
             // If the user exists, validate Google ID
             if (user.google_id && user.google_id !== google_id) {

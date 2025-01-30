@@ -17,20 +17,18 @@ const router = express.Router();
 
 
 
-router.get('/getUser',restrictLogIn,validate, getUser);
+router.get('/getUser', restrictLogIn, validate, getUser);
 
 router.post('/signup',
     [
         check('name').matches(/^[a-zA-Z\s]+$/).isLength({ min: 3 }).withMessage('Name must contain only letters and spaces.'),
         check('email').isEmail().withMessage('Please enter a valid email address.'),
         check('phone_number').matches(/^[0-9]{10}$/).withMessage('Phone number must contain exactly 10 digits.'),
-        check('address').isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.'),
         check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
         check('user_type')
-        .exists().withMessage('User type is required')
-        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')    
+            .exists().withMessage('User type is required')
+            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
-    restrictLogIn,
     validate,
     signup
 );
@@ -40,8 +38,8 @@ router.post('/login',
         check('email').isEmail().withMessage('Please enter a valid email address.'),
         check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
         check('user_type')
-        .exists().withMessage('User type is required')
-        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+            .exists().withMessage('User type is required')
+            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     validate,
     login
@@ -55,8 +53,8 @@ router.put('/update',
         check('phone_number').optional().matches(/^[0-9]{10}$/).withMessage('Phone number must contain exactly 10 digits.'),
         check('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.'),
         check('user_type')
-        .exists().withMessage('User type is required')
-        .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+            .exists().withMessage('User type is required')
+            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     restrictLogIn,
     validate,
@@ -92,10 +90,10 @@ router.post('/change-password',
     changePassword
 );
 
-router.post('/google_login',[
+router.post('/google_login', [
     check('name').matches(/^[a-zA-Z\s]+$/).isLength({ min: 3 }).withMessage('Name must contain only letters and spaces.'),
     check('email').isEmail().withMessage('Please enter a valid email address.'),
-    check('google_id').isLength({ min: 21,max:21 }).matches(/^\d{21}$/).withMessage('Not a valid google_id')
-],validate,google_login);
+    check('google_id').isLength({ min: 21, max: 21 }).matches(/^\d{21}$/).withMessage('Not a valid google_id')
+], validate, google_login);
 
 module.exports = router;
