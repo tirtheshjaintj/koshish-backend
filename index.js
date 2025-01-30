@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const connectDB = require('./helpers/db.helper.js');
 const user = require("./routes/user.route.js");
-const groq = require("./routes/groq.route.js");
+// const groq = require("./routes/groq.route.js");
 const classRoutes = require("./routes/class.route.js")
 const registrations = require("./routes/registrations.route.js");
 const cookieParser = require("cookie-parser");
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 });
 app.use(errorHandler);
 app.use("/api/user", user);
-app.use("/api/groq", groq);
+// app.use("/api/groq", groq);
 app.use("/api/class", classRoutes);
 app.use("/api/registrations", registrations);
 

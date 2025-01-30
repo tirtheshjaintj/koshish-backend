@@ -143,41 +143,12 @@ const updateClass = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * @desc    Delete a class
- * @route   DELETE /api/class/:classId
- * @param   {String} classId - ID of the class to delete.
- * @returns {Object} JSON response confirming deletion or an error if not found.
- */
-const deleteClass = asyncHandler(async (req, res) => {
-    const { classId } = req.params;
 
-    try {
-        if (!classId) {
-            return res.status(400).json({ status: false, message: "Class ID is required." });
-        }
-
-        if (!isValidObjectId(classId)) {
-            return res.status(400).json({ status: false, message: "Invalid Class ID." });
-        }
-
-        // Delete the class by ID
-        const deletedClass = await Class.findByIdAndDelete(classId);
-        if (!deletedClass) {
-            return res.status(404).json({ status: false, message: "Class not found." });
-        }
-
-        res.status(200).json({ status: true, message: "Class deleted successfully!" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: false, message: "Internal Server Error", error: error.message });
-    }
-});
 
 module.exports = {
     createClass,
     getAllClasses,
     getClassById,
     updateClass,
-    deleteClass,
+    
 };

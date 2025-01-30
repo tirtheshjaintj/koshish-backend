@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
-const Registration = require("../models/Registration");
-const Class = require("../models/Class");
-const Event = require("../models/Event");
+const Registration = require("../models/registration.model.js");
+const Class = require("../models/class.model.js");
+const Event = require("../models/event.model.js");
 const { isValidObjectId } = require("mongoose");
 
 /**

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("./User"); // Import the User model to check the user_type
+const User = require("./user.model.js"); // Import the User model to check the user_type
 
 const classSchema = new mongoose.Schema({
     name: {

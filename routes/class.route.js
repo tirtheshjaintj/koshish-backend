@@ -6,8 +6,7 @@ const {
     createClass,
     getAllClasses,
     getClassById,
-    updateClass,
-    deleteClass
+    updateClass
 } = require('../controllers/class.controller');
 
 const router = express.Router();
@@ -48,11 +47,6 @@ router.put('/:classId',
 );
 
 
-router.delete('/:classId',
-    restrictLogIn,
-    check('classId').isMongoId().withMessage('Invalid Class ID.'),
-    validate,
-    deleteClass
-);
+
 
 module.exports = router;
