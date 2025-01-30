@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema(
         message: () => `Not a valid Google ID`,
       },
       unique: true,
-      sparse: true, // Allows multiple `null` values
+      sparse: true,  
     },
   },
   { timestamps: true }
