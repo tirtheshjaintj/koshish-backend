@@ -6,7 +6,6 @@ const asyncHandler = require("express-async-handler");
 
 const validUserTypes = ["Admin", "Teacher", "Convenor"];
 
-
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type} = req.body;
     try {
@@ -14,13 +13,13 @@ const signup = asyncHandler(async (req, res) => {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
         // Check if the user with the given email already exists and is verified
-        const existingUser = await User.findOne({ email, verified: true });
+        const existingUser = await User.findOne({ email });
         if (existingUser){
             return res.status(400).json({ status: false, message: 'User already exists with this email.' });
         }
 
         // Check if the user with the given phone number already exists and is verified
-        const existingUser2 = await User.findOne({ phone_number, verified: true });
+        const existingUser2 = await User.findOne({ phone_number });
         if (existingUser2) {
             return res.status(400).json({ status: false, message: 'User already exists with this phone number.' });
         }
@@ -46,7 +45,7 @@ const login = asyncHandler(async (req, res) => {
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
-        const user = await User.findOne({ email,user_type, verified: true });
+        const user = await User.findOne({ email,user_type});
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid email or password.' });
         }
@@ -101,12 +100,12 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const { userid } = req.params;
 
     try {
-        const user = await User.findOne({ _id: userid,otp, verified: false });
+        const user = await User.findOne({ _id: userid,otp});
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid OTP or user already verified.' });
         }
 
-        await User.findByIdAndUpdate(user._id, { verified: true, otp: null });
+        await User.findByIdAndUpdate(user._id, {otp: null });
         const mailStatus = await sendMail(
             'PCTE Koshish Planning: Account Verified Successfully ✅',
             user.email,
@@ -128,7 +127,7 @@ const resendOtp = asyncHandler(async (req, res) => {
     const { userid } = req.params;
 
     try {
-        const user = await User.findOne({ _id: userid, verified: false });
+        const user = await User.findOne({ _id: userid });
         if (!user) {
             return res.status(400).json({ status: false, message: 'User not found or already verified.' });
         }
@@ -161,7 +160,7 @@ const getUser = asyncHandler(async (req, res) => {
 const forgotPassword = asyncHandler(async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email, verified: true });
+        const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ status: false, message: 'No Account Exists' });
 
         const otp = crypto.randomInt(100000, 999999).toString(); // Generate OTP
@@ -183,7 +182,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const changePassword = asyncHandler(async (req, res) => {
     try {
         const { email, otp, password } = req.body;
-        const user = await User.findOne({ email, otp, verified: true });
+        const user = await User.findOne({ email, otp});
         if (!user) return res.status(404).json({ status: false, message: 'OTP Not Correct' });
         user.password = password;
         user.otp = null;

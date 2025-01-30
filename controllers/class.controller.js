@@ -50,16 +50,13 @@ const getAllClasses = asyncHandler(async (req, res) => {
 
 const getClassById = asyncHandler(async (req, res) => {
     const { classId } = req.params;
-
     try {
         if (!classId) {
             return res.status(400).json({ status: false, message: "Class ID is required." });
         }
-
         if (!isValidObjectId(classId)) {
             return res.status(400).json({ status: false, message: "Invalid Class ID." });
         }
-
         // Fetch the class by ID and populate incharge details
         const singleClass = await Class.findById(classId).populate("incharge", "name email");
         if (!singleClass) {
@@ -136,9 +133,9 @@ const updateClass = asyncHandler(async (req, res) => {
  * @param   {String} classId - ID of the class to delete.
  * @returns {Object} JSON response confirming deletion or an error if not found.
  */
+
 const deleteClass = asyncHandler(async (req, res) => {
     const { classId } = req.params;
-
     try {
         if (!classId) {
             return res.status(400).json({ status: false, message: "Class ID is required." });
@@ -160,6 +157,7 @@ const deleteClass = asyncHandler(async (req, res) => {
         res.status(500).json({ status: false, message: "Internal Server Error", error: error.message });
     }
 });
+
 
 module.exports = {
     createClass,
