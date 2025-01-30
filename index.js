@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const connectDB = require('./helpers/db.helper.js');
+const connectDB = require('./helpers/db.helper');
 const user = require("./routes/user.route.js");
 const groq = require("./routes/groq.route.js");
 const classRoutes = require("./routes/class.route.js")

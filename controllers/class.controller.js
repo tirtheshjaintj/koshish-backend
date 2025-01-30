@@ -3,16 +3,9 @@ const Class = require("../models/class.model.js");
 const User = require("../models/user.model.js");
 const { isValidObjectId } = require("mongoose");
 
-/**
- * @desc    Create a new class
- * @route   POST /api/class
- * @param   {Object} req.body - Contains class details: name, incharge, and type.
- * @returns {Object} JSON response with the newly created class.
- */
 const createClass = asyncHandler(async (req, res) => {
     const { name, incharge, type } = req.body;
     const user = req.user;
-
     try {
         // Validate required fields
         if (!name || !incharge || !type) {
@@ -55,12 +48,6 @@ const getAllClasses = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * @desc    Get a class by ID
- * @route   GET /api/class/:classId
- * @param   {String} classId - ID of the class to retrieve.
- * @returns {Object} JSON response with the class details or an error if not found.
- */
 const getClassById = asyncHandler(async (req, res) => {
     const { classId } = req.params;
 

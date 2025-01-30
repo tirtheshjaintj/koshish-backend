@@ -1,15 +1,11 @@
 const asyncHandler = require("express-async-handler");
-const Registration = require("../models/Registration");
-const Class = require("../models/Class");
-const Event = require("../models/Event");
+const Registration = require("../models/registration.model");
+const Class = require("../models/class.model");
+const Event = require("../models/event.model");
 const { isValidObjectId } = require("mongoose");
 
-/**
- * @desc    Create a new registration
- * @route   POST /api/registrations
- * @input   { classId: <ObjectId>, eventId: <ObjectId>, students: <Array of student names> }
- * @output  { status: true/false, message: <message>, registration: <created registration object> }
-*/
+
+
 const createRegistration = asyncHandler(async (req, res) => {
     const { classId, eventId, students } = req.body;
 

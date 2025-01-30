@@ -9,14 +9,13 @@ const validUserTypes = ["Admin", "Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type} = req.body;
-    const otp = crypto.randomInt(100000, 999999).toString();
     try {
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
         // Check if the user with the given email already exists and is verified
         const existingUser = await User.findOne({ email, verified: true });
-        if (existingUser) {
+        if (existingUser){
             return res.status(400).json({ status: false, message: 'User already exists with this email.' });
         }
 
@@ -26,20 +25,7 @@ const signup = asyncHandler(async (req, res) => {
             return res.status(400).json({ status: false, message: 'User already exists with this phone number.' });
         }
 
-        let user;
-        const newUser = await User.findOne({ email, verified: false });
-
-        if (!newUser) {
-            user = await User.create({ name,email,phone_number,user_type, password, otp });
-        } else {
-            newUser.name=name;
-            newUser.user_type=user_type;
-            newUser.phone_number = phone_number;
-            newUser.otp = otp;
-            newUser.password = password;
-            await newUser.save();
-            user = newUser;
-        }
+        const user = await User.create({ name,email,phone_number,user_type, password });        
         
         const mailStatus = await sendMail('PCTE Koshish Planning: Your OTP Code', email, `Your OTP code is ${otp}`);
         if (mailStatus) {
@@ -214,7 +200,6 @@ const google_login = asyncHandler(async (req, res) => {
     try {
         // Check if the user exists
         let user = await User.findOne({ email });
-
         if (!user) {
            return res.status(401).json({status:false,message:"Account Not Found"});
         } else {

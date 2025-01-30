@@ -59,11 +59,6 @@ const userSchema = new mongoose.Schema(
         message: () => `OTP must be 6 digits`,
       },
     },
-    verified: {
-      type: Boolean,
-      default: false,
-      required: true,
-    },
     google_id: {
       type: String,
       validate: {
