@@ -1,67 +1,210 @@
 const asyncHandler = require("express-async-handler");
 const Result = require("../models/result.model.js");
+const Event = require("../models/event.model.js");
+const Class = require("../models/class.model.js");
+const sendMail = require("../helpers/mail.helper.js");
 
-// Get all results
-const getAllResults = asyncHandler(async (req, res) => {
-  const results = await Result.find({}).populate("eventId classId");
-  res.status(200).json(results);
+// Get result by Event ID
+const getResultByEventId = asyncHandler(async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const eventExists = await Event.findById(eventId);
+    if (!eventExists) {
+      return res.status(404).json({ success: false, message: "Event not found" });
+    }
+
+    const result = await Result.findOne({ eventId }).populate("eventId").populate("result.classId");
+
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Result not found for this event" });
+    }
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+
+// Get a single result by ID
+const getResultById = asyncHandler(async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id).populate("eventId").populate("result.classId");
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Result not found" });
+    }
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
 });
 
 // Create a new result
 const createResult = asyncHandler(async (req, res) => {
-  const { eventId, classId, position } = req.body;
-
-  if (!eventId || !classId || !position) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
   try {
-    const newResult = new Result({ eventId, classId, position });
-    await newResult.save();
-    res.status(201).json({ message: "Result created successfully", newResult });
+    const { eventId, result } = req.body;
+
+    const eventExists = await Event.findById(eventId);
+    if (!eventExists) {
+      return res.status(400).json({ success: false, message: "Event not found" });
+    }
+
+    for (const item of result) {
+      const classExists = await Class.findById(item.classId);
+      if (!classExists) {
+        return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
+      }
+    }
+
+    const existingResult = await Result.findOne({ eventId });
+    if (existingResult) {
+      return res.status(400).json({ success: false, message: "Result for this event already exists" });
+    }
+
+    const newResult = await Result.create({ eventId, result });
+
+    res.status(201).json({ success: true, message: "Result created successfully", data: newResult });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 });
 
 // Update result
 const updateResult = asyncHandler(async (req, res) => {
-  const { resultId } = req.params;
-  const { position } = req.body;
+  try {
+    const { id } = req.params;
+    const { result } = req.body;
 
-  if (!position || !Array.isArray(position) || position.length !== 3) {
-    return res.status(400).json({ message: "Invalid positions format" });
+    const existingResult = await Result.findById(id);
+    if (!existingResult) {
+      return res.status(404).json({ success: false, message: "Result not found" });
+    }
+
+    for (const item of result) {
+      const classExists = await Class.findById(item.classId);
+      if (!classExists) {
+        return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
+      }
+    }
+
+    existingResult.result = result;
+    await existingResult.save();
+
+    res.status(200).json({ success: true, message: "Result updated successfully", data: existingResult });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
-
-  const updatedResult = await Result.findByIdAndUpdate(
-    resultId,
-    { position },
-    { new: true }
-  );
-
-  if (!updatedResult) {
-    return res.status(404).json({ message: "Result not found" });
-  }
-
-  res.status(200).json({ message: "Result updated successfully", updatedResult });
 });
 
 // Delete result
 const deleteResult = asyncHandler(async (req, res) => {
-  const { resultId } = req.params;
+  try {
+    const { id } = req.params;
 
-  const deletedResult = await Result.findByIdAndDelete(resultId);
+    const existingResult = await Result.findById(id);
+    if (!existingResult) {
+      return res.status(404).json({ success: false, message: "Result not found" });
+    }
 
-  if (!deletedResult) {
-    return res.status(404).json({ message: "Result not found" });
+    await existingResult.deleteOne();
+
+    res.status(200).json({ success: true, message: "Result deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
-
-  res.status(200).json({ message: "Result deleted successfully" });
 });
 
+
+const declareResultForEvent = asyncHandler(async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const eventExists = await Event.findById(eventId);
+    if (!eventExists) {
+      return res.status(404).json({ success: false, message: "Event not found" });
+    }
+
+    const result = await Result.findOne({ eventId })
+      .populate("eventId")
+      .populate({
+        path: "result.classId",
+        populate: { path: "incharge", select: "email name" },
+      });
+
+    console.log(result)
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Result not found for this event" });
+    }
+
+    const inchargeEmails = new Set();
+    result.result.forEach((entry) => {
+      if (entry.classId?.incharge?.email) {
+        inchargeEmails.add(entry.classId.incharge.email);
+      }
+    });
+
+    if (inchargeEmails.size === 0) {
+      return res.status(400).json({ success: false, message: "No incharges found to send results" });
+    }
+
+    let resultTable = `
+          <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+              <thead>
+                  <tr style="background-color: #f2f2f2;">
+                      <th>Class</th>
+                      <th>Student Name</th>
+                      <th>Position</th>
+                  </tr>
+              </thead>
+              <tbody>
+      `;
+
+    result.result.forEach((entry) => {
+      resultTable += `
+              <tr>
+                  <td>${entry.classId.name}</td>
+                  <td>${entry.studentName}</td>
+                  <td>${entry.position}</td>
+              </tr>
+          `;
+    });
+
+    resultTable += `</tbody></table>`;
+
+    const subject = `Result Declaration: ${eventExists.name}`;
+    const message = `
+          <div style="font-family: Arial, sans-serif; padding: 20px;">
+              <h2 style="color: #333;">Results for ${eventExists.name}</h2>
+              <p>The results for the event <strong>${eventExists.name}</strong> have been declared. Please find the details below:</p>
+              ${resultTable}
+              <p>Best Regards,<br><strong>Event Management Team</strong></p>
+          </div>
+      `;
+
+   
+    const isEmailSent = await sendMail(subject,[...inchargeEmails], message);
+
+    if (!isEmailSent) {
+      return res.status(500).json({ success: false, message: "Failed to send/declare result to emails" });
+    }
+
+    res.status(200).json({ success: true, message: "Result declared successfully and emails sent to incharges" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+
+
+
+
+
 module.exports = {
-  getAllResults,
+  getResultByEventId,
+  getResultById,
   createResult,
   updateResult,
   deleteResult,
+  declareResultForEvent
 };
