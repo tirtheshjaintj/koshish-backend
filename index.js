@@ -7,6 +7,7 @@ const user = require("./routes/user.route.js");
 // const groq = require("./routes/groq.route.js");
 const classRoutes = require("./routes/class.route.js")
 const registrations = require("./routes/registrations.route.js");
+const events = require("./routes/event.route.js");
 const cookieParser = require("cookie-parser");
 const errorHandler = require('./helpers/error.helper.js');
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -32,6 +33,7 @@ app.use("/api/user", user);
 // app.use("/api/groq", groq);
 app.use("/api/class", classRoutes);
 app.use("/api/registrations", registrations);
+app.use("/api/event", events);
 
 
 app.listen(process.env.PORT, () => console.log("Server  Started"));
