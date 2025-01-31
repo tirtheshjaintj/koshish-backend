@@ -8,7 +8,10 @@ const groq = require("./routes/groq.route");
 const classRoutes = require("./routes/class.route")
 const registrations = require("./routes/registrations.route");
 const cookieParser = require("cookie-parser");
-const errorHandler = require('./helpers/error.helper');
+
+const errorHandler = require('./helpers/error.helper.js');
+const resultRouter = require('./routes/result.route.js');
+
 const allowedOrigins = [process.env.FRONTEND_URL];
 
 const corsOptions = {
@@ -32,6 +35,7 @@ app.use("/api/user", user);
 app.use("/api/groq", groq);
 app.use("/api/class", classRoutes);
 app.use("/api/registrations", registrations);
+app.use('/api/result',resultRouter);
 
 
 app.listen(process.env.PORT, () => console.log("Server  Started"));
