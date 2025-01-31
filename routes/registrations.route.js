@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const {check}=require("express-validator");
 const {
     createRegistration,
     getAllRegistrations,
@@ -8,20 +8,37 @@ const {
     updateRegistration,
     deleteRegistration
 } = require("../controllers/registeration.controller.js");
+const { restrictLogIn } = require("../middlewares/authCheck.js");
+const { validate } = require("../middlewares/validate.js");
 
+const registrationValidationRules = [
+    check("classId").isMongoId().withMessage("Valid Class ID is required"),
+    check("eventId").isMongoId().withMessage("Valid Event ID is required"),
+    check("students")
+        .isArray({ min: 1 })
+        .withMessage("Students must be an array with at least one entry")
+        .custom((students) => students.every(s => typeof s === "string" && s.trim().length > 0))
+        .withMessage("Each student must be a non-empty string"),
+    validate // Middleware to check validation errors
+];
 
-router.post("/", createRegistration);
+const idValidationRules = [
+    check("registrationId").isMongoId().withMessage("Invalid Registration ID"),
+    validate
+];
+// Create a registration (POST)
+router.post("/", restrictLogIn, registrationValidationRules, createRegistration);
 
+// Get all registrations (GET)
+router.get("/", restrictLogIn, getAllRegistrations);
 
-router.get("/", getAllRegistrations);
+// Get a single registration by ID (GET)
+router.get("/:registrationId", restrictLogIn, idValidationRules, getRegistrationById);
 
+// Update a registration (PUT)
+router.put("/:registrationId", restrictLogIn, idValidationRules, registrationValidationRules, updateRegistration);
 
-router.get("/:registrationId", getRegistrationById);
-
-
-router.put("/:registrationId", updateRegistration);
-
-
-router.delete("/:registrationId", deleteRegistration);
+// Delete a registration (DELETE)
+router.delete("/:registrationId", restrictLogIn, idValidationRules, deleteRegistration);
 
 module.exports = router;

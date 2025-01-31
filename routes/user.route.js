@@ -16,8 +16,7 @@ const { validate } = require('../middlewares/validate');
 const router = express.Router();
 
 
-
-router.get('/getUser', restrictLogIn, validate, getUser);
+router.get('/getUser',restrictLogIn,validate, getUser);
 
 router.post('/signup',
     [
@@ -26,8 +25,8 @@ router.post('/signup',
         check('phone_number').matches(/^[0-9]{10}$/).withMessage('Phone number must contain exactly 10 digits.'),
         check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
         check('user_type')
-            .exists().withMessage('User type is required')
-            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+        .exists().withMessage('User type is required')
+        .isIn(['Convenor', 'Teacher']).withMessage('User type must be either Convenor or Teacher')    
     ],
     validate,
     signup

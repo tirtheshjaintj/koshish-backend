@@ -4,11 +4,16 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-const validUserTypes = ["Admin", "Teacher", "Convenor"];
+const validUserTypes = ["Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
     try {
+        const userId = req.user.id;
+        const admin_user = await User.find({_id:userId,user_type:"Admin"});
+        if(!admin_user){
+            return res.status(400).json({ status: false, message: "Only Admin can create a new user." });  
+        }
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
@@ -24,9 +29,10 @@ const signup = asyncHandler(async (req, res) => {
             return res.status(400).json({ status: false, message: 'User already exists with this phone number.' });
         }
 
-        const user = await User.create({ name, email, phone_number, user_type, password });
-        res.status(201).json({ status: true, message: 'User Registered!', user });
-
+        const user = await User.create({ name,email,phone_number,user_type, password });        
+        const mailStatus = await sendMail('PCTE Koshish Planning: Account Created Successfully', email, `PCTE Koshish Planning: Account Created Successfully`);
+        const token=setUser(user);
+        res.status(201).json({ status: true, message: 'Account Created Successfully!', token });
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -69,11 +75,9 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-    const { name, email, phone_number } = req.body;
-
+    const { name, email, phone_number} = req.body;
     try {
-        const userId = req.user.id; // Assuming user ID is extracted from middleware
-
+        const userId = req.user.id;
         const user = await User.findByIdAndUpdate(
             userId,
             { name, email, phone_number },
@@ -97,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     try {
         const user = await User.findOne({ _id: userid, otp });
         if (!user) {
-            return res.status(400).json({ status: false, message: 'Invalid OTP or user already verified.' });
+            return res.status(400).json({ status: false, message: 'Invalid OTP' });
         }
 
         await User.findByIdAndUpdate(user._id, { otp: null });

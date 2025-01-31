@@ -2,43 +2,16 @@ const asyncHandler = require("express-async-handler");
 const Registration = require("../models/registration.model");
 const Class = require("../models/class.model");
 const Event = require("../models/event.model");
-const { isValidObjectId } = require("mongoose");
-
-
 
 const createRegistration = asyncHandler(async (req, res) => {
     const { classId, eventId, students } = req.body;
-
     try {
-        // Validate input
-        if (!classId || !eventId || !students || !Array.isArray(students) || students.length === 0) {
-            return res.status(400).json({
-                status: false,
-                message: "Class ID, Event ID, and a list of students are required.",
-            });
-        }
-
-        // Validate Class ID
-        if (!isValidObjectId(classId)) {
-            return res.status(400).json({
-                status: false,
-                message: "Invalid Class ID.",
-            });
-        }
-
-        const classExists = await Class.findById(classId);
+        const userId=req.user.id;
+        const classExists = await Class.find({_id:classId,incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,
                 message: "Class not found.",
-            });
-        }
-
-        // Validate Event ID
-        if (!isValidObjectId(eventId)) {
-            return res.status(400).json({
-                status: false,
-                message: "Invalid Event ID.",
             });
         }
 
@@ -47,6 +20,20 @@ const createRegistration = asyncHandler(async (req, res) => {
             return res.status(400).json({
                 status: false,
                 message: "Event not found.",
+            });
+        }
+
+        if(students.length<eventExists.minStudents){
+            return res.status(400).json({
+                status: false,
+                message: "Students are less than required",
+            });
+        }
+
+        if(students.length>eventExists.maxStudents){
+            return res.status(400).json({
+                status: false,
+                message: "Students are more than required",
             });
         }
 
@@ -72,18 +59,13 @@ const createRegistration = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * @desc    Get all registrations
- * @route   GET /api/registrations
- * @input   None
- * @output  { status: true/false, message: <message>, registrations: <Array of registration objects> }
-*/
+
 const getAllRegistrations = asyncHandler(async (req, res) => {
     try {
         const registrations = await Registration.find().populate("classId").populate("eventId");
-        if(!registrations) 
+        if(!registrations) {
             return res.status(500).json({status: false, message: "Error retrieving registrations."});
-
+        }
         res.status(200).json({
             status: true,
             message: "Registrations retrieved successfully!",
@@ -99,30 +81,10 @@ const getAllRegistrations = asyncHandler(async (req, res) => {
 });
 
 
-/**
- * @desc    Get a single registration by ID
- * @route   GET /api/registrations/:registrationId
- * @input   { registrationId: <ObjectId> }
- * @output  { status: true/false, message: <message>, registration: <registration object> }
-*/
+
 const getRegistrationById = asyncHandler(async (req, res) => {
     const { registrationId } = req.params;
-
     try {
-        if (!registrationId) {
-            return res.status(400).json({
-                status: false,
-                message: "Registration ID is required.",
-            });
-        }
-
-        if (!isValidObjectId(registrationId)) {
-            return res.status(400).json({
-                status: false,
-                message: "Invalid Registration ID.",
-            });
-        }
-
         const registration = await Registration.findById(registrationId).populate("classId").populate("eventId");
         if (!registration) {
             return res.status(404).json({
@@ -146,32 +108,20 @@ const getRegistrationById = asyncHandler(async (req, res) => {
 });
 
 
-/**
- * @desc    Update a registration
- * @route   PUT /api/registrations/:registrationId
- * @input   { classId: <ObjectId>, eventId: <ObjectId>, students: <Array of student names> }
- * @output  { status: true/false, message: <message>, registration: <updated registration object> }
-*/
 const updateRegistration = asyncHandler(async (req, res) => {
     const { registrationId } = req.params;
     const { classId, eventId, students } = req.body;
 
     try {
-        if (!registrationId) {
+        const userId=req.user.id;
+        const classExists = await Class.find({_id:classId,incharge:userId});
+        if (!classExists) {
             return res.status(400).json({
                 status: false,
-                message: "Registration ID is required.",
+                message: "Class not found.",
             });
         }
-
-        if (!isValidObjectId(registrationId)) {
-            return res.status(400).json({
-                status: false,
-                message: "Invalid Registration ID.",
-            });
-        }
-
-        const registration = await Registration.findById(registrationId);
+        const registration = await Registration.find({_id:registrationId,classId:classExists._id});
         if (!registration) {
             return res.status(404).json({
                 status: false,
@@ -205,31 +155,9 @@ const updateRegistration = asyncHandler(async (req, res) => {
     }
 });
 
-/**
- * @desc    Delete a registration
- * @route   DELETE /api/registrations/:registrationId
- * @input   { registrationId: <ObjectId> }
- * @output  { status: true/false, message: <message> }
- */
-
 const deleteRegistration = asyncHandler(async (req, res) => {
     const { registrationId } = req.params;
-
     try {
-        if (!registrationId) {
-            return res.status(400).json({
-                status: false,
-                message: "Registration ID is required.",
-            });
-        }
-
-        if (!isValidObjectId(registrationId)) {
-            return res.status(400).json({
-                status: false,
-                message: "Invalid Registration ID.",
-            });
-        }
-
         const deletedRegistration = await Registration.findByIdAndDelete(registrationId);
         if (!deletedRegistration) {
             return res.status(404).json({
