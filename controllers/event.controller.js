@@ -7,7 +7,7 @@ const createEvent = asyncHandler(async (req, res) => {
     const { name, type, part_type, description, rules, maxStudents, minStudents, location, points } = req.body;
 
     console.log(req.user);
-    if(req.user.user_type !== "Convenor"){
+    if (req.user.user_type !== "Convenor") {
         return res.status(401).json({ status: false, message: "You are not authorized to create an event" });
     }
 
@@ -32,7 +32,7 @@ const createEvent = asyncHandler(async (req, res) => {
 
         // Send invitations to all Teachers
         const teachers = await User.find({ user_type: "Teacher" });
-        
+
         const invitations = teachers.map(async (teacher) => {
             const subject = `Invitation to Register for "${name}" Event`;
             const receiver = teacher.email;
@@ -126,14 +126,14 @@ const updateEvent = asyncHandler(async (req, res) => {
     try {
         const { name, type, part_type, description, rules, maxStudents, minStudents, location, convenor, points } = req.body;
 
-        
-    
-        if(req.user.user_type !== "Convenor"){
+
+
+        if (req.user.user_type !== "Convenor") {
             return res.status(401).json({ status: false, message: "You are not authorized to create an event" });
         }
 
 
-        const event = await Event.findByIdAndUpdate(req.params.id, { name, type, part_type, description, rules, maxStudents, minStudents, location, convenor, points } , { new: true });
+        const event = await Event.findByIdAndUpdate(req.params.id, { name, type, part_type, description, rules, maxStudents, minStudents, location, convenor, points }, { new: true });
 
         if (!event) {
             return res.status(404).json({ status: false, message: "Event not found" });
