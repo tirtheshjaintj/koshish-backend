@@ -8,7 +8,7 @@ const groq = require("./routes/groq.route");
 const classRoutes = require("./routes/class.route")
 const registrations = require("./routes/registrations.route");
 const cookieParser = require("cookie-parser");
-
+const events = require("./routes/event.route.js");
 const errorHandler = require('./helpers/error.helper.js');
 const resultRouter = require('./routes/result.route.js');
 
@@ -36,6 +36,6 @@ app.use("/api/groq", groq);
 app.use("/api/class", classRoutes);
 app.use("/api/registrations", registrations);
 app.use('/api/result',resultRouter);
-
+app.use("/api/event", events);
 
 app.listen(process.env.PORT, () => console.log("Server  Started"));
