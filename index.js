@@ -3,12 +3,12 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const connectDB = require('./helpers/db.helper');
-const user = require("./routes/user.route.js");
-const groq = require("./routes/groq.route.js");
-const classRoutes = require("./routes/class.route.js")
-const registrations = require("./routes/registrations.route.js");
+const user = require("./routes/user.route");
+const groq = require("./routes/groq.route");
+const classRoutes = require("./routes/class.route")
+const registrations = require("./routes/registrations.route");
 const cookieParser = require("cookie-parser");
-const errorHandler = require('./helpers/error.helper.js');
+const errorHandler = require('./helpers/error.helper');
 const allowedOrigins = [process.env.FRONTEND_URL];
 
 const corsOptions = {

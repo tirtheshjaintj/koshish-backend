@@ -18,7 +18,8 @@ router.post('/',
     [
         check('name').notEmpty().withMessage('Class name is required.'),
         check('incharge').isMongoId().withMessage('Incharge must be a valid user ID.'),
-        check('type').notEmpty().withMessage('Class type is required.')
+        check('type').optional().notEmpty().withMessage('Class type cannot be empty.').isIn(["Senior","Junior"])
+        .withMessage('Class type can be Senior or Junior')
     ],
     validate,
     createClass
@@ -41,7 +42,8 @@ router.put('/:classId',
         check('classId').isMongoId().withMessage('Invalid Class ID.'),
         check('name').optional().notEmpty().withMessage('Class name cannot be empty.'),
         check('incharge').optional().isMongoId().withMessage('Incharge must be a valid user ID.'),
-        check('type').optional().notEmpty().withMessage('Class type cannot be empty.')
+        check('type').optional().notEmpty().withMessage('Class type cannot be empty.').isIn(["Senior","Junior"])
+        .withMessage('Class type can be Senior or Junior')
     ],
     validate,
     updateClass
