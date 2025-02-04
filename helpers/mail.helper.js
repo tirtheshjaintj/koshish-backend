@@ -13,12 +13,13 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-async function sendMail(subject, receiver, text) {
+async function sendMail(subject, receiver, text, html) {
     const mailOptions = {
         from: process.env.GMAIL_USER,
         to: receiver,
         subject,
-        text
+        text,
+        html
     };
     try {
         await transporter.sendMail(mailOptions);
