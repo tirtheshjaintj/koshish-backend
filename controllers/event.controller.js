@@ -17,7 +17,7 @@ const createEvent = asyncHandler(async (req, res) => {
   } = req.body;
 
   console.log(req.user);
-  
+
   if (req.user.user_type !== "Convenor") {
     return res.status(401).json({
       status: false,
@@ -269,9 +269,25 @@ const updateEvent = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteEvent = asyncHandler(async (req, res) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Event not found" });
+    }
+    res.status(200).json({ status: true, message: "Event deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+});
+
 module.exports = {
   createEvent,
   getAllEvents,
   getEventById,
   updateEvent,
+  deleteEvent
 };
