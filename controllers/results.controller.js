@@ -3,6 +3,7 @@ const Result = require("../models/result.model.js");
 const Event = require("../models/event.model.js");
 const Class = require("../models/class.model.js");
 const sendMail = require("../helpers/mail.helper.js");
+const User = require("../models/user.model.js");
 
 // Get result by Event ID
 const getResultByEventId = asyncHandler(async (req, res) => {
@@ -25,7 +26,6 @@ const getResultByEventId = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 });
-
 
 // Get a single result by ID
 const getResultById = asyncHandler(async (req, res) => {
@@ -119,11 +119,12 @@ const deleteResult = asyncHandler(async (req, res) => {
 const declareResultForEvent = asyncHandler(async (req, res) => {
   try {
     const { eventId } = req.params;
-
+ 
     const eventExists = await Event.findById(eventId);
     if (!eventExists) {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
+
 
     const result = await Result.findOne({ eventId })
       .populate("eventId")
@@ -132,21 +133,19 @@ const declareResultForEvent = asyncHandler(async (req, res) => {
         populate: { path: "incharge", select: "email name" },
       });
 
-    console.log(result)
+   
     if (!result) {
       return res.status(404).json({ success: false, message: "Result not found for this event" });
     }
 
-    const inchargeEmails = new Set();
-    result.result.forEach((entry) => {
-      if (entry.classId?.incharge?.email) {
-        inchargeEmails.add(entry.classId.incharge.email);
-      }
-    });
-
-    if (inchargeEmails.size === 0) {
+  
+    const incharges = await User.find({ user_type: "Teacher" });
+ 
+    if (incharges.size === 0) {
       return res.status(400).json({ success: false, message: "No incharges found to send results" });
     }
+
+    const inchargeEmails = incharges.map((incharge) => incharge.email);
 
     let resultTable = `
           <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
@@ -181,9 +180,10 @@ const declareResultForEvent = asyncHandler(async (req, res) => {
               <p>Best Regards,<br><strong>Event Management Team</strong></p>
           </div>
       `;
+      const text=`Result for the ${eventExists.name} has been declared`
 
    
-    const isEmailSent = await sendMail(subject,[...inchargeEmails], message);
+    const isEmailSent = await sendMail(subject,[...inchargeEmails],text, message);
 
     if (!isEmailSent) {
       return res.status(500).json({ success: false, message: "Failed to send/declare result to emails" });
