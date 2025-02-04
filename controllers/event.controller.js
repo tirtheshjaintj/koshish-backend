@@ -126,12 +126,9 @@ const updateEvent = asyncHandler(async (req, res) => {
     try {
         const { name, type, part_type, description, rules, maxStudents, minStudents, location, convenor, points } = req.body;
 
-
-
         if (req.user.user_type !== "Convenor") {
             return res.status(401).json({ status: false, message: "You are not authorized to create an event" });
         }
-
 
         const event = await Event.findByIdAndUpdate(req.params.id, { name, type, part_type, description, rules, maxStudents, minStudents, location, convenor, points }, { new: true });
 

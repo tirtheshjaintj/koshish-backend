@@ -81,7 +81,6 @@ const getAllRegistrations = asyncHandler(async (req, res) => {
 });
 
 
-
 const getRegistrationById = asyncHandler(async (req, res) => {
     const { registrationId } = req.params;
     try {
