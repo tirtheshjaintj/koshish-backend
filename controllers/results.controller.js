@@ -198,8 +198,6 @@ const declareResultForEvent = asyncHandler(async (req, res) => {
 
 
 
-
-
 module.exports = {
   getResultByEventId,
   getResultById,

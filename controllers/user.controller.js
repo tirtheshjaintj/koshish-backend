@@ -4,11 +4,12 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-const validUserTypes = ["Teacher", "Convenor"];
+const validUserTypes = ["Admin","Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
     try {
+        // console.log(req.user)
         const userId = req.user.id;
         const admin_user = await User.find({_id:userId,user_type:"Admin"});
         if(!admin_user){
@@ -42,6 +43,7 @@ const signup = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
     const { email, password, user_type } = req.body;
 
+    console.log(user_type)
     try {
         if (!validUserTypes.includes(user_type)) {
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
