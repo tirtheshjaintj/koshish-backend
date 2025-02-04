@@ -70,7 +70,7 @@ const eventSchema = new mongoose.Schema({
         validate: {
             validator: async function (value) {
                 const user = await User.findById(value);
-                return user && user.user_type === "Teacher"; // Ensure convenor is a user of type "Teacher"
+                return user && user.user_type === "Convenor"; 
             },
             message: "Convenor must be a valid user with the user_type 'Teacher'"
         }
