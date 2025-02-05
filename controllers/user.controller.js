@@ -40,13 +40,9 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password, user_type } = req.body;
-
+    const { email, password} = req.body;
     try {
-        if (!validUserTypes.includes(user_type)) {
-            return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
-        }
-        const user = await User.findOne({ email, user_type });
+        const user = await User.findOne({ email});
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid email or password.' });
         }
@@ -148,7 +144,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 const getUser = asyncHandler(async (req, res) => {
     try {
         const userId = req.user.id;
-        const user = await User.findById(userId).select("-password -otp -__v -verified");
+        const user = await User.findById(userId).select("-password -otp -__v");
         if (!user) return res.status(404).json({ status: false, message: 'User Not Found' });
         return res.status(200).json({ status: true, message: "User Fetched", user });
     } catch (error) {
@@ -158,8 +154,8 @@ const getUser = asyncHandler(async (req, res) => {
 
 const forgotPassword = asyncHandler(async (req, res) => {
     try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+        const { email} = req.body;
+        const user = await User.findOne({ email});
         if (!user) return res.status(404).json({ status: false, message: 'No Account Exists' });
 
         const otp = crypto.randomInt(100000, 999999).toString(); // Generate OTP
@@ -194,10 +190,10 @@ const changePassword = asyncHandler(async (req, res) => {
 });
 
 const google_login = asyncHandler(async (req, res) => {
-    const { email, google_id, name } = req.body;
+    const { email, google_id, name} = req.body;
     try {
         // Check if the user exists
-        let user = await User.findOne({ email });
+        let user = await User.findOne({email});
         if (!user) {
             return res.status(401).json({ status: false, message: "Account Not Found" });
         } else {
@@ -211,7 +207,6 @@ const google_login = asyncHandler(async (req, res) => {
         }
 
         user.otp = null;
-        user.verified = true;
         await user.save();
         // Generate JWT token for the user
         const token = setUser(user);

@@ -28,6 +28,7 @@ router.post('/signup',
         .exists().withMessage('User type is required')
         .isIn(['Convenor', 'Teacher']).withMessage('User type must be either Convenor or Teacher')    
     ],
+    restrictLogIn,
     validate,
     signup
 );

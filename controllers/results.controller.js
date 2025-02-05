@@ -44,7 +44,6 @@ const getResultById = asyncHandler(async (req, res) => {
 const createResult = asyncHandler(async (req, res) => {
   try {
     const { eventId, result } = req.body;
-
     const eventExists = await Event.findById(eventId);
     if (!eventExists) {
       return res.status(400).json({ success: false, message: "Event not found" });
