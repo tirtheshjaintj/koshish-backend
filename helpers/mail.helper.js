@@ -8,14 +8,18 @@ const transporter = nodemailer.createTransport({
         user: process.env.GMAIL_USER, // Your Gmail address
         pass: process.env.GMAIL_PASS, // Your Gmail password or app-specific password
     },
+    tls:{
+        unauthorized: true
+    }
 });
 
-async function sendMail(subject, receiver, text) {
+async function sendMail(subject, receiver, text, html) {
     const mailOptions = {
         from: process.env.GMAIL_USER,
         to: receiver,
         subject,
-        text
+        text,
+        html
     };
     try {
         await transporter.sendMail(mailOptions);

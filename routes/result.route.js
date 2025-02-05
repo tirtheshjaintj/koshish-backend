@@ -7,7 +7,7 @@ resultRouter.get('/get/:eventId',restrictLogIn, getResultByEventId);
 resultRouter.post('/add',restrictLogIn,createResult);
 resultRouter.put('/update/:id',restrictLogIn, updateResult);
 resultRouter.delete('/delete/:id',restrictLogIn,deleteResult);
-resultRouter.get('declare/:eventId',restrictLogIn,declareResultForEvent);
+resultRouter.get('/declare/:eventId',restrictLogIn,declareResultForEvent);
 
 
 

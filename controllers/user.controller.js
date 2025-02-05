@@ -4,11 +4,12 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-const validUserTypes = ["Teacher", "Convenor"];
+const validUserTypes = ["Admin","Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
     try {
+        // console.log(req.user)
         const userId = req.user.id;
         const admin_user = await User.find({_id:userId,user_type:"Admin"});
         if(!admin_user){
@@ -40,7 +41,13 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
+<<<<<<< HEAD
     const { email, password} = req.body;
+=======
+    const { email, password, user_type } = req.body;
+
+    console.log(user_type)
+>>>>>>> e6e31dea29f3af90d3dc1ae9ea3333a589f4f87e
     try {
         const user = await User.findOne({ email});
         if (!user) {
