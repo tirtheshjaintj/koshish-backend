@@ -156,10 +156,12 @@ const getUser = asyncHandler(async (req, res) => {
 
 const getFaculty=asyncHandler(async(req,res)=>{
     try{
-        const userId=req.user.id;
+        const userId=req.user._id;
+        
+        
         const user=await User.findOne({_id:userId,user_type:"Admin"}).select("-password -otp -__v");
         
-        if(!user)  return res.status(404).json({ status: false, message: 'Not Allowed' });
+        if(!user)  return res.status(400).json({ status: false, message: 'Not Allowed' });
         const faculty = await User.find({ user_type: { $in: ["Teacher", "Convenor"] } })
         .select("-password -otp -__v");
         return res.status(200).json({status:true,message:"Faculty Fetched",data:faculty});
