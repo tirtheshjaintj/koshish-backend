@@ -4,10 +4,10 @@ const Class = require("../models/class.model");
 const Event = require("../models/event.model");
 
 const createRegistration = asyncHandler(async (req, res) => {
-    const { classId, eventId, students } = req.body;
+    const { eventId, students } = req.body;
     try {
         const userId=req.user.id;
-        const classExists = await Class.find({_id:classId,incharge:userId});
+        const classExists = await Class.find({incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,

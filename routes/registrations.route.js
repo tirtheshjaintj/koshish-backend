@@ -12,7 +12,6 @@ const { restrictLogIn } = require("../middlewares/authCheck.js");
 const { validate } = require("../middlewares/validate.js");
 
 const registrationValidationRules = [
-    check("classId").isMongoId().withMessage("Valid Class ID is required"),
     check("eventId").isMongoId().withMessage("Valid Event ID is required"),
     check("students")
         .isArray({ min: 1 })

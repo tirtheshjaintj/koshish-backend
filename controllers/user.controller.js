@@ -234,6 +234,15 @@ const google_login = asyncHandler(async (req, res) => {
     }
 });
 
+const getAllFaculties = asyncHandler(async(req,res)=>{
+    try {
+        const faculties = await User.find({user_type:"Teacher"});
+        res.status(200).json({status:true,faculties});
+    } catch (error) {
+        res.status(500).json({status:false,message:"Internal Server Error"});
+    }
+})
+
 
 
 module.exports = {
@@ -245,5 +254,6 @@ module.exports = {
     getUser,
     forgotPassword,
     changePassword,
-    google_login
+    google_login,
+    getAllFaculties
 };
