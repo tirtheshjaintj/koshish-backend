@@ -7,7 +7,7 @@ const createRegistration = asyncHandler(async (req, res) => {
     const { classId, eventId, students } = req.body;
     try {
         const userId=req.user.id;
-        const classExists = await Class.find({_id:classId,incharge:userId});
+        const classExists = await Class.findOne({_id:classId,incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,
@@ -113,14 +113,14 @@ const updateRegistration = asyncHandler(async (req, res) => {
 
     try {
         const userId=req.user.id;
-        const classExists = await Class.find({_id:classId,incharge:userId});
+        const classExists = await Class.findOne({_id:classId,incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,
                 message: "Class not found.",
             });
         }
-        const registration = await Registration.find({_id:registrationId,classId:classExists._id});
+        const registration = await Registration.findOne({_id:registrationId,classId:classExists._id});
         if (!registration) {
             return res.status(404).json({
                 status: false,
