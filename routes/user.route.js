@@ -38,9 +38,9 @@ router.post('/login',
     [
         check('email').isEmail().withMessage('Please enter a valid email address.'),
         check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
-        check('user_type')
-            .exists().withMessage('User type is required')
-            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+        // check('user_type')
+        //     .exists().withMessage('User type is required')
+        //     .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
     ],
     validate,
     login
