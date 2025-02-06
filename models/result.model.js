@@ -16,7 +16,6 @@ const resultSchema = new mongoose.Schema({
             message: "Event not found"
         }
     },
-
     result:[{
         classId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -37,31 +36,10 @@ const resultSchema = new mongoose.Schema({
         }
 
     }],
-
-
-    // classId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Class",
-    //     required: [true, "Class ID is required"], // Ensures classId is provided
-    //     validate: {
-    //         validator: async function (value) {
-    //             const classExists = await Class.findById(value);
-    //             return classExists !== null; // Ensures the class exists in the database
-    //         },
-    //         message: "Class not found"
-    //     }
-    // },
-    // position: {
-    //     type: [Number],
-    //     required: [true, "Positions are required"], // Ensures positions are provided
-    //     validate: {
-    //         validator: function (positions) {
-    //             return positions.length === 3 && 
-    //                    positions.every(position => [1, 2, 3].includes(position)); 
-    //         },
-    //         message: "Positions must be an array of exactly 3 values, each being 1, 2, or 3"
-    //     }
-    // }
+    is_active:{
+        type:Boolean,
+        default:true
+    }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
 });

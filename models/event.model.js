@@ -89,7 +89,7 @@ const eventSchema = new mongoose.Schema({
     },
     is_active:{
         type:Boolean,
-        default:false
+        default:true
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields

@@ -29,8 +29,13 @@ const classSchema = new mongoose.Schema({
             message: "Type must be either 'Senior' or 'Junior'"
         },
         required: [true, "Class type is required"]
+    },
+    is_active:{
+        type:Boolean,
+        default:true
     }
-}, {
+},
+ {
     timestamps: true 
 });
 

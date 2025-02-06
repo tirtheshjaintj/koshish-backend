@@ -70,6 +70,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,  
     },
+    is_active:{
+        type:Boolean,
+        default:true
+    }
   },
   { timestamps: true }
 );

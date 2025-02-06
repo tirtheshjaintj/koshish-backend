@@ -18,7 +18,8 @@ const createEvent = asyncHandler(async (req, res) => {
 
   console.log(req.user);
 
-  if (req.user.user_type !== "Convenor") {
+  const user = await User.findById(req.user.id);
+  if (user.user_type !== "Convenor") {
     return res.status(401).json({
       status: false,
       message: "You are not authorized to create an event",

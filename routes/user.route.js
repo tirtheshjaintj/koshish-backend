@@ -11,7 +11,7 @@ const {
     changePassword,
     forgotPassword,
     google_login,
-    getAllFaculties
+    getFaculty
 } = require('../controllers/user.controller');
 const { validate } = require('../middlewares/validate');
 const router = express.Router();
@@ -45,6 +45,10 @@ router.post('/login',
     validate,
     login
 );
+
+router.get('/getFaculty',restrictLogIn,getFaculty);
+
+
 
 router.put('/update',
     restrictLogIn,
@@ -98,5 +102,4 @@ router.post('/google_login', [
 ], validate, google_login);
 
 
-router.get('/all-faculties' , getAllFaculties)
 module.exports = router;
