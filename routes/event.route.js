@@ -26,7 +26,7 @@ router.post(
 );
 
 
-router.get("/", restrictLogIn, getAllEvents);
+router.get("/", getAllEvents);
 
 
 router.get(
