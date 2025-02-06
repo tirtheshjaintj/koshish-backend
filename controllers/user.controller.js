@@ -42,8 +42,6 @@ const signup = asyncHandler(async (req, res) => {
 
 const login = asyncHandler(async (req, res) => {
     const { email, password} = req.body;
-    console.log(user_type)
-
     try {
         const user = await User.findOne({ email});
         if (!user) {

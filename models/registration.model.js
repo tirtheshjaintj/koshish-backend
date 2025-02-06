@@ -36,6 +36,10 @@ const registrationSchema = new mongoose.Schema({
             },
             message: "At least one student is required"
         }
+    },
+    is_active:{
+        type:Boolean,
+        default:true
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
