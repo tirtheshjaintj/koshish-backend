@@ -133,7 +133,7 @@ const createEvent = asyncHandler(async (req, res) => {
 // Get All Events
 const getAllEvents = asyncHandler(async (req, res) => {
   try {
-    const events = await Event.find({});
+    const events = await Event.find({is_active:true});
     res.status(200).json({ status: true, events });
   } catch (error) {
     console.error(error);
