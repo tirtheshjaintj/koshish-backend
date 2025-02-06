@@ -6,13 +6,13 @@ const {
     getAllRegistrations,
     getRegistrationById,
     updateRegistration,
-    deleteRegistration
+    deleteRegistration,
+    getClassRegisterations
 } = require("../controllers/registeration.controller.js");
 const { restrictLogIn } = require("../middlewares/authCheck.js");
 const { validate } = require("../middlewares/validate.js");
 
 const registrationValidationRules = [
-    check("classId").isMongoId().withMessage("Valid Class ID is required"),
     check("eventId").isMongoId().withMessage("Valid Event ID is required"),
     check("students")
         .isArray({ min: 1 })
@@ -31,6 +31,8 @@ router.post("/", restrictLogIn, registrationValidationRules, createRegistration)
 
 // Get all registrations (GET)
 router.get("/", restrictLogIn, getAllRegistrations);
+
+router.get("/classRegistrations" ,restrictLogIn , getClassRegisterations)
 
 // Get a single registration by ID (GET)
 router.get("/:registrationId", restrictLogIn, idValidationRules, getRegistrationById);

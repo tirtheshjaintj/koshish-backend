@@ -37,10 +37,7 @@ router.post('/signup',
 router.post('/login',
     [
         check('email').isEmail().withMessage('Please enter a valid email address.'),
-        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
-        // check('user_type')
-        //     .exists().withMessage('User type is required')
-        //     .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+        check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.')
     ],
     validate,
     login
@@ -100,5 +97,6 @@ router.post('/google_login', [
     check('email').isEmail().withMessage('Please enter a valid email address.'),
     check('google_id').isLength({ min: 21, max: 21 }).matches(/^\d{21}$/).withMessage('Not a valid google_id')
 ], validate, google_login);
+
 
 module.exports = router;
