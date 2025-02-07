@@ -5,9 +5,10 @@ const Event = require("../models/event.model");
 
 const createRegistration = asyncHandler(async (req, res) => {
     const { eventId, students } = req.body;
-    try {
-        const userId=req.user.id;
-        const classExists = await Class.find({incharge:userId});
+    try {4
+        const userId=req.user._id;
+        console.log({userId})
+        const classExists = await Class.findOne({incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,
@@ -37,9 +38,11 @@ const createRegistration = asyncHandler(async (req, res) => {
             });
         }
 
+        console.log({classExists , eventId , students})
+
         // Create the registration
         const newRegistration = await Registration.create({
-            classId,
+            classId : classExists?._id,
             eventId,
             students,
         });
