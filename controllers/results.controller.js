@@ -56,7 +56,6 @@ const createResult = asyncHandler(async (req, res) => {
         return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
       }
     }
-    
     const existingResult = await Result.findOne({ eventId });
     if (existingResult) {
       return res.status(400).json({ success: false, message: "Result for this event already exists" });
