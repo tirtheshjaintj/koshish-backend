@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.GMAIL_PASS, // Your Gmail password or app-specific password
     },
     tls:{
-        rejectUnauthorized:false
+        rejectUnauthorized: false
     }
 });
 

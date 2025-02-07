@@ -9,15 +9,13 @@ const validUserTypes = ["Admin", "Teacher", "Convenor"];
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
     try {
-        // console.log(req.user)
-        const userId = req.user.id;
-        const admin_user = await User.find({ _id: userId, user_type: "Admin" });
-        if (!admin_user) {
-            return res.status(400).json({ status: false, message: "Only Admin can create a new user." });
-        }
-        if (!validUserTypes.includes(user_type)) {
+        const admin_user=req.user;
+        if(!admin_user || admin_user.user_type!="Admin")  return res.status(404).json({ status: false, message: "Only Admin can create a new user." });
+        
+        if (!validUserTypes.includes(user_type)){
             return res.status(400).json({ status: false, message: 'Invalid user type. Must be Admin, Teacher, or Convenor.' });
         }
+
         // Check if the user with the given email already exists and is verified
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -72,20 +70,21 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-    const { name, email, phone_number } = req.body;
+    const { name,user_id, email, phone_number} = req.body;
     try {
-        const userId = req.user.id;
-        const user = await User.findByIdAndUpdate(
-            userId,
+        const user=req.user;
+        if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
+        const user2 = await User.findByIdAndUpdate(
+            user_id,
             { name, email, phone_number },
             { new: true, runValidators: true }
         );
 
-        if (!user) {
+        if (!user2) {
             return res.status(404).json({ status: false, message: 'User not found.' });
         }
-
         res.status(200).json({ status: true, message: 'User details updated successfully!', user });
+        
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
@@ -107,11 +106,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
             user.email,
             `Hello ${user.name}, Congratulations 🎉 your account is now verified.`
         );
-
         if (!mailStatus) {
             res.status(500).json({ status: false, message: 'Failed to send verification email.' });
         }
-
         const token = setUser(user);
         res.status(200).json({ status: true, message: 'Verification successful!', token });
     } catch (error) {
@@ -121,13 +118,11 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 const resendOtp = asyncHandler(async (req, res) => {
     const { userid } = req.params;
-
     try {
         const user = await User.findOne({ _id: userid });
         if (!user) {
             return res.status(400).json({ status: false, message: 'User not found or already verified.' });
         }
-
         const newOtp = crypto.randomInt(100000, 999999).toString();
         await User.findByIdAndUpdate(user._id, { otp: newOtp });
         const mailStatus = await sendMail('PCTE Koshish Planning: Your new OTP Code', user.email, `Your new OTP code is ${newOtp}`);
@@ -144,8 +139,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 const getUser = asyncHandler(async (req, res) => {
     try {
-        const userId = req.user.id;
-        const user = await User.findById(userId).select("-password -otp -__v");
+        const user=req.user;
         if (!user) return res.status(404).json({ status: false, message: 'User Not Found' });
         return res.status(200).json({ status: true, message: "User Fetched", user });
     } catch (error) {
@@ -154,13 +148,10 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 
-const getFaculty = asyncHandler(async (req, res) => {
-    try {
-        const userId = req.user._id;
-
-        const user = await User.findOne({ _id: userId, user_type: "Admin" }).select("-password -otp -__v");
-
-        if (!user) return res.status(400).json({ status: false, message: 'Not Allowed' });
+const getFaculty=asyncHandler(async(req,res)=>{
+    try{
+        const user=req.user;
+        if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
         const faculty = await User.find({ user_type: { $in: ["Teacher", "Convenor"] } })
             .select("-password -otp -__v");
         return res.status(200).json({ status: true, message: "Faculty Fetched", data: faculty });
