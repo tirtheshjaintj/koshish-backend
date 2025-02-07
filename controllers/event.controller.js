@@ -145,6 +145,7 @@ const getAllEvents = asyncHandler(async (req, res) => {
 const getEventById = asyncHandler(async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
+    console.log(event);
     if (!event) {
       return res
         .status(404)
