@@ -10,7 +10,9 @@ async function getUser(token) {
     if (!token) return null; 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+        console.log(decoded)
         const user = await User.findById(decoded.id);
+        
         return user;
     } catch (err) {
         console.log(err);

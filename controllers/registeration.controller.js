@@ -4,11 +4,10 @@ const Class = require("../models/class.model");
 const Event = require("../models/event.model");
 
 const createRegistration = asyncHandler(async (req, res) => {
-    const { eventId, students } = req.body;
-    try {4
-        const userId=req.user._id;
-        console.log({userId})
-        const classExists = await Class.findOne({incharge:userId});
+    const { classId, eventId, students } = req.body;
+    try {
+        const userId=req.user.id;
+        const classExists = await Class.findOne({_id:classId,incharge:userId});
         if (!classExists) {
             return res.status(400).json({
                 status: false,
@@ -38,11 +37,9 @@ const createRegistration = asyncHandler(async (req, res) => {
             });
         }
 
-        console.log({classExists , eventId , students})
-
         // Create the registration
         const newRegistration = await Registration.create({
-            classId : classExists?._id,
+            classId,
             eventId,
             students,
         });
@@ -108,6 +105,8 @@ const getRegistrationById = asyncHandler(async (req, res) => {
         });
     }
 });
+
+
 
 
 const updateRegistration = asyncHandler(async (req, res) => {
@@ -181,37 +180,10 @@ const deleteRegistration = asyncHandler(async (req, res) => {
     }
 });
 
-
-const getClassRegisterations = asyncHandler(async(req,res)=>{
-    console.log("requser:",req.user)
-    const userId = req?.user?._id;
-    console.log("userId : " , userId)
-    try {
-        const classInstance = await Class.findOne({incharge:userId});
-        if(!classInstance){
-            return res.status(400).json({
-                status: false,
-                message: "Class not found.",
-            });
-        }
-
-        const registrations = await Registration.find({classId:classInstance._id}).populate("classId").populate("eventId");
-        return res.status(200).json({status:true,message:"Registrations Fetched",registrations});
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: false,
-            message: "Internal Server Error",
-        });
-    }
-
-})
-
 module.exports = {
     createRegistration,
     getAllRegistrations,
     getRegistrationById,
     updateRegistration,
     deleteRegistration,
-    getClassRegisterations
 };
