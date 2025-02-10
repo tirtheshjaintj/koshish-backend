@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const Event = require("../models/event.model.js");
 const User = require("../models/user.model.js");
 const sendMail = require("../helpers/mail.helper.js");
+const Class = require("../models/class.model.js");
+const Registration = require("../models/registration.model.js");
 // Create an Event
 const createEvent = asyncHandler(async (req, res) => {
   const {
@@ -285,10 +287,41 @@ const deleteEvent = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+const getAllEventsForClass = asyncHandler(async (req, res) => {
+  const inchargeId = req.params.inchargeId;
+  try {
+    const classInstance   = await Class.findOne({incharge:inchargeId});
+    console.log({classInstance});
+    const classId = classInstance._id ;
+    const events = await Event.find({ is_active: true });
+    console.log({events})
+    const registeredEvents = await Registration.find({ classId });
+
+    console.log({registeredEvents})
+  
+    const result = events.map((event) => {
+      const registeredEvent = registeredEvents.find((regEvent) => regEvent.eventId.toString() === event._id.toString());
+      return {
+        ...event.toObject(),
+        register: registeredEvent ? registeredEvent.toObject() : null,
+      };
+    });
+  
+    res.status(200).json({ status: true, message: "Event fetched successfully" , result });
+  } catch (error) {
+    console.log("error : " , error)
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+});
+
+
 module.exports = {
   createEvent,
   getAllEvents,
   getEventById,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  getAllEventsForClass
 };

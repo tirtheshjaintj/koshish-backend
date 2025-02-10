@@ -5,7 +5,7 @@ const Event = require("../models/event.model");
 
 const createRegistration = asyncHandler(async (req, res) => {
     const { eventId, students } = req.body;
-    try {4
+    try {
         const userId=req.user._id;
         console.log({userId})
         const classExists = await Class.findOne({incharge:userId});
@@ -206,6 +206,8 @@ const getClassRegisterations = asyncHandler(async(req,res)=>{
     }
 
 })
+
+
 
 module.exports = {
     createRegistration,

@@ -139,7 +139,6 @@ const resendOtp = asyncHandler(async (req, res) => {
 const getUser = asyncHandler(async (req, res) => {
     try {
         const user=req.user;
-        if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
         if (!user) return res.status(404).json({ status: false, message: 'User Not Found' });
         return res.status(200).json({ status: true, message: "User Fetched", user });
     } catch (error) {
