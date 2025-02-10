@@ -38,11 +38,9 @@ const createRegistration = asyncHandler(async (req, res) => {
             });
         }
 
-        console.log({classExists , eventId , students})
-
         // Create the registration
         const newRegistration = await Registration.create({
-            classId : classExists?._id,
+            classId,
             eventId,
             students,
         });
@@ -108,6 +106,8 @@ const getRegistrationById = asyncHandler(async (req, res) => {
         });
     }
 });
+
+
 
 
 const updateRegistration = asyncHandler(async (req, res) => {
@@ -215,5 +215,4 @@ module.exports = {
     getRegistrationById,
     updateRegistration,
     deleteRegistration,
-    getClassRegisterations
 };

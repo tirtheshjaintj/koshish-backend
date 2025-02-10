@@ -31,7 +31,6 @@ router.get("/", getAllEvents);
 
 router.get(
     "/:id",
-    restrictLogIn,
     [param("id").isMongoId().withMessage("Invalid event ID.")],
     validate,
     getEventById
