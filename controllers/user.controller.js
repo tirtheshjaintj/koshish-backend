@@ -70,20 +70,21 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-    const { name,user_id, email, phone_number} = req.body;
+    const {userId}=req.params;
+    const { name,email, phone_number,user_type,is_active} = req.body;
     try {
         const user=req.user;
-        if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
+        if(user && user.user_type!="Admin")  return res.status(401).json({ status: false, message: 'Not Allowed' });
         const user2 = await User.findByIdAndUpdate(
-            user_id,
-            { name, email, phone_number },
+            userId,
+            { name, email, phone_number ,user_type,is_active},
             { new: true, runValidators: true }
         );
 
         if (!user2) {
             return res.status(404).json({ status: false, message: 'User not found.' });
         }
-        res.status(200).json({ status: true, message: 'User details updated successfully!', user });
+        res.status(200).json({ status: true, message: 'Details updated successfully!', user });
         
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
