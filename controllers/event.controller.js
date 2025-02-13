@@ -135,7 +135,7 @@ const createEvent = asyncHandler(async (req, res) => {
 // Get All Events
 const getAllEvents = asyncHandler(async (req, res) => {
   try {
-    const events = await Event.find({is_active:true});
+    const events = await Event.find({ is_active: true });
     res.status(200).json({ status: true, events });
   } catch (error) {
     console.error(error);
@@ -225,9 +225,8 @@ const updateEvent = asyncHandler(async (req, res) => {
         const text = `
                     Dear ${teacher.name},
 
-                    We would like to inform you that there have been some updates to the **"${
-                      event.name
-                    }"** event. Please find the updated details below:
+                    We would like to inform you that there have been some updates to the **"${event.name
+          }"** event. Please find the updated details below:
 
                     **Updated Event Details:**
                     - **Event Name:** ${event.name}
@@ -291,17 +290,20 @@ const deleteEvent = asyncHandler(async (req, res) => {
 
 
 const getAllEventsForClass = asyncHandler(async (req, res) => {
-  const inchargeId = req.params.inchargeId;
   try {
-    const classInstance   = await Class.findOne({incharge:inchargeId});
-    console.log({classInstance});
-    const classId = classInstance._id ;
+    const inchargeId = req.user._id;
+    const classInstance = await Class.findOne({ incharge: inchargeId });
+    if (!classInstance) {
+      return res.status(404).json({ status: false, message: "Class not found" });
+    }
+    console.log({ classInstance });
+    const classId = classInstance._id;
     const events = await Event.find({ is_active: true });
-    console.log({events})
+    console.log({ events })
     const registeredEvents = await Registration.find({ classId });
 
-    console.log({registeredEvents})
-  
+    console.log({ registeredEvents })
+
     const result = events.map((event) => {
       const registeredEvent = registeredEvents.find((regEvent) => regEvent.eventId.toString() === event._id.toString());
       return {
@@ -309,10 +311,10 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
         register: registeredEvent ? registeredEvent.toObject() : null,
       };
     });
-  
-    res.status(200).json({ status: true, message: "Event fetched successfully" , result });
+
+    res.status(200).json({ status: true, message: "Event fetched successfully", result });
   } catch (error) {
-    console.log("error : " , error)
+    console.log("error : ", error)
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 });

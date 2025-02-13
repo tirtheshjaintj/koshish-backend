@@ -1,6 +1,6 @@
 const express = require("express");
 const { body, param } = require("express-validator");
-const { createEvent, getAllEvents, getEventById, updateEvent  ,deleteEvent , getAllEventsForClass} = require("../controllers/event.controller.js");
+const { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent, getAllEventsForClass } = require("../controllers/event.controller.js");
 const { validate } = require("../middlewares/validate.js");
 const { restrictLogIn } = require("../middlewares/authCheck.js");
 
@@ -65,9 +65,9 @@ router.delete(
     deleteEvent
 );
 
-router.get('/class/:inchargeId' , 
+router.get('/class',
     restrictLogIn,
-    [param("inchargeId").isMongoId().withMessage("Invalid inchargeId ID.")]
-    ,getAllEventsForClass);
+    getAllEventsForClass
+);
 
 module.exports = router;
