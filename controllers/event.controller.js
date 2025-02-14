@@ -294,11 +294,13 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
   const inchargeId = req.params.inchargeId;
   try {
     const classInstance   = await Class.findOne({incharge:inchargeId});
-    console.log({classInstance});
+    
     const classId = classInstance._id ;
     const events = await Event.find({ is_active: true , type:classInstance.type});
-    console.log({events})
-    const registeredEvents = await Registration.find({ classId });
+    
+    const currentYear = new Date().getFullYear();
+
+    const registeredEvents = await Registration.find({ classId , year:parseInt(currentYear) });
 
     
   

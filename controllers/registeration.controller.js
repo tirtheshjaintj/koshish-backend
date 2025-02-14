@@ -38,11 +38,15 @@ const createRegistration = asyncHandler(async (req, res) => {
             });
         }
 
+        const year = parseInt(new Date().getFullYear());
+        
+
         // Create the registration
         const newRegistration = await Registration.create({
             classId:classExists._id,
             eventId,
             students,
+            year
         });
 
         res.status(201).json({
@@ -63,7 +67,12 @@ const createRegistration = asyncHandler(async (req, res) => {
 
 const getAllRegistrations = asyncHandler(async (req, res) => {
     try {
-        const registrations = await Registration.find().populate("classId").populate("eventId");
+        
+        const currentYear = new Date().getFullYear();
+        const registrations = await Registration.find({ year: parseInt(currentYear) })
+          .populate("classId")
+          .populate("eventId");
+        
         if(!registrations) {
             return res.status(500).json({status: false, message: "Error retrieving registrations."});
         }
@@ -186,7 +195,9 @@ const getClassRegisterations = asyncHandler(async(req,res)=>{
     console.log("requser:",req.user)
     const userId = req?.user?._id;
     console.log("userId : " , userId)
+    
     try {
+        const currentYear = new Date().getFullYear();
         const classInstance = await Class.findOne({incharge:userId});
         if(!classInstance){
             return res.status(400).json({
@@ -195,7 +206,7 @@ const getClassRegisterations = asyncHandler(async(req,res)=>{
             });
         }
 
-        const registrations = await Registration.find({classId:classInstance._id}).populate("classId").populate("eventId");
+        const registrations = await Registration.find({classId:classInstance._id , year:parseInt(currentYear) }).populate("classId").populate("eventId");
         return res.status(200).json({status:true,message:"Registrations Fetched",registrations});
     } catch (error) {
         console.error(error);
@@ -215,4 +226,5 @@ module.exports = {
     getRegistrationById,
     updateRegistration,
     deleteRegistration,
+    getClassRegisterations
 };
