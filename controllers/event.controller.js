@@ -294,7 +294,7 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
   const inchargeId = req.params.inchargeId;
   try {
     const classInstance   = await Class.findOne({incharge:inchargeId});
-    console.log({classInstance});
+    console.log(classInstance);
     const classId = classInstance._id ;
     const events = await Event.find({ is_active: true });
     console.log({events})
