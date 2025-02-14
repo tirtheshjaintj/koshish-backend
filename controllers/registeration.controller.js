@@ -40,7 +40,7 @@ const createRegistration = asyncHandler(async (req, res) => {
 
         // Create the registration
         const newRegistration = await Registration.create({
-            classId,
+            classId:classExists._id,
             eventId,
             students,
         });

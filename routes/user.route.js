@@ -47,7 +47,7 @@ router.get('/getFaculty',restrictLogIn,getFaculty);
 
 
 
-router.put('/update',
+router.put('/update/:userId',
     restrictLogIn,
     [
         check('name').optional().matches(/^[a-zA-Z\s]+$/).withMessage('Name must contain only letters and spaces.'),

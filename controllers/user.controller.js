@@ -4,7 +4,7 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-const validUserTypes = ["Teacher", "Convenor"];
+const validUserTypes = ["Admin", "Teacher", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
@@ -28,9 +28,9 @@ const signup = asyncHandler(async (req, res) => {
             return res.status(400).json({ status: false, message: 'User already exists with this phone number.' });
         }
 
-        const user = await User.create({ name,email,phone_number,user_type, password });        
+        const user = await User.create({ name, email, phone_number, user_type, password });
         const mailStatus = await sendMail('PCTE Koshish Planning: Account Created Successfully', email, `PCTE Koshish Planning: Account Created Successfully`);
-        const token=setUser(user);
+        const token = setUser(user);
         res.status(201).json({ status: true, message: 'Account Created Successfully!', token });
     } catch (error) {
         console.log(error);
@@ -39,9 +39,9 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password} = req.body;
+    const { email, password } = req.body;
     try {
-        const user = await User.findOne({ email});
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ status: false, message: 'Invalid email or password.' });
         }
@@ -70,20 +70,21 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-    const { name,user_id, email, phone_number} = req.body;
+    const {userId}=req.params;
+    const { name,email, phone_number,user_type,is_active} = req.body;
     try {
         const user=req.user;
-        if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
+        if(user && user.user_type!="Admin")  return res.status(401).json({ status: false, message: 'Not Allowed' });
         const user2 = await User.findByIdAndUpdate(
-            user_id,
-            { name, email, phone_number },
+            userId,
+            { name, email, phone_number ,user_type,is_active},
             { new: true, runValidators: true }
         );
 
         if (!user2) {
             return res.status(404).json({ status: false, message: 'User not found.' });
         }
-        res.status(200).json({ status: true, message: 'User details updated successfully!', user });
+        res.status(200).json({ status: true, message: 'Details updated successfully!', user });
         
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -153,17 +154,17 @@ const getFaculty=asyncHandler(async(req,res)=>{
         const user=req.user;
         if(user && user.user_type!="Admin")  return res.status(404).json({ status: false, message: 'Not Allowed' });
         const faculty = await User.find({ user_type: { $in: ["Teacher", "Convenor"] } })
-        .select("-password -otp -__v");
-        return res.status(200).json({status:true,message:"Faculty Fetched",data:faculty});
-    }catch{
-        res.status(500).json({ status: false, message: 'Internal Server Error' });  
+            .select("-password -otp -__v");
+        return res.status(200).json({ status: true, message: "Faculty Fetched", data: faculty });
+    } catch {
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 });
 
 const forgotPassword = asyncHandler(async (req, res) => {
     try {
-        const { email} = req.body;
-        const user = await User.findOne({ email});
+        const { email } = req.body;
+        const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ status: false, message: 'No Account Exists' });
 
         const otp = crypto.randomInt(100000, 999999).toString(); // Generate OTP
@@ -198,10 +199,10 @@ const changePassword = asyncHandler(async (req, res) => {
 });
 
 const google_login = asyncHandler(async (req, res) => {
-    const { email, google_id, name} = req.body;
+    const { email, google_id, name } = req.body;
     try {
         // Check if the user exists
-        let user = await User.findOne({email});
+        let user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ status: false, message: "Account Not Found" });
         } else {
