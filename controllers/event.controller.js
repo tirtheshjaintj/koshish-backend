@@ -291,9 +291,17 @@ const deleteEvent = asyncHandler(async (req, res) => {
 
 
 const getAllEventsForClass = asyncHandler(async (req, res) => {
-  const inchargeId = req.params.inchargeId;
+  const inchargeId = req.user._id;
+
+  console.log({inchargeId})
   try {
     const classInstance   = await Class.findOne({incharge:inchargeId});
+    if(!classInstance){
+        return res.status(400).json({
+            status: false,
+            message: "Class not found.",
+          });
+    }
     
     const classId = classInstance._id ;
     const events = await Event.find({ is_active: true , type:classInstance.type});
