@@ -219,6 +219,56 @@ const getClassRegisterations = asyncHandler(async(req,res)=>{
 })
 
 
+const getRegisterationsByCategory = asyncHandler(async (req, res) => {
+    const { eventId } = req.params;
+    
+    if(!eventId){
+        return res.status(400).json({
+            status: false,
+            message: "Event ID is required.",
+        });
+    }
+
+    const user = req?.user;
+    if (user.user_type !== "Admin") {
+        return res.status(400).json({
+            status: false,
+            message: "Only Admin can access this route.",
+        });
+    }
+
+    try {
+        const currentYear = new Date().getFullYear();
+
+        // ✅ Find the event ID based on name and type
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({
+                status: false,
+                message: "Event not found.",
+            });
+        }
+
+        
+        const registrations = await Registration.find({
+            eventId: event._id,
+            year: parseInt(currentYear),
+        })
+            .populate("classId")
+            .populate("eventId");
+
+        return res.status(200).json({ status: true, message: "Registrations Fetched", registrations });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: false,
+            message: "Internal Server Error",
+        });
+    }
+});
+
+
 
 module.exports = {
     createRegistration,
@@ -226,5 +276,6 @@ module.exports = {
     getRegistrationById,
     updateRegistration,
     deleteRegistration,
-    getClassRegisterations
+    getClassRegisterations,
+    getRegisterationsByCategory
 };

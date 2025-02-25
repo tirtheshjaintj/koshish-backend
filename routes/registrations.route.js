@@ -6,7 +6,8 @@ const {
     getAllRegistrations,
     getRegistrationById,
     updateRegistration,
-    deleteRegistration
+    deleteRegistration,
+    getRegisterationsByCategory
 } = require("../controllers/registeration.controller.js");
 const { restrictLogIn } = require("../middlewares/authCheck.js");
 const { validate } = require("../middlewares/validate.js");
@@ -30,6 +31,8 @@ router.post("/", restrictLogIn, registrationValidationRules, createRegistration)
 
 // Get all registrations (GET)
 router.get("/", restrictLogIn, getAllRegistrations);
+
+router.get("/category/:eventId" , restrictLogIn , getRegisterationsByCategory)
 
 // router.get("/classRegistrations" ,restrictLogIn , getClassRegisterations)
 
