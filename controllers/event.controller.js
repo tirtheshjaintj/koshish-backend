@@ -296,11 +296,11 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
     const classInstance   = await Class.findOne({incharge:inchargeId});
     console.log(classInstance);
     const classId = classInstance._id ;
-    const events = await Event.find({ is_active: true , type:classInstance.type});
+    const events = await Event.find({ is_active: true });
     console.log({events})
     const registeredEvents = await Registration.find({ classId });
 
-    
+    console.log({registeredEvents})
   
     const result = events.map((event) => {
       const registeredEvent = registeredEvents.find((regEvent) => regEvent.eventId.toString() === event._id.toString());
