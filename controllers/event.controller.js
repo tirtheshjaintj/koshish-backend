@@ -6,6 +6,7 @@ const Class = require("../models/class.model.js");
 const Registration = require("../models/registration.model.js");
 // Create an Event
 const createEvent = asyncHandler(async (req, res) => {
+  
   const {
     name,
     type,
@@ -14,17 +15,24 @@ const createEvent = asyncHandler(async (req, res) => {
     rules,
     maxStudents,
     minStudents,
-    location,
-    points,
+    location
   } = req.body;
 
-  console.log(req.user);
 
-  const user = await User.findById(req.user.id);
-  if (user.user_type !== "Convenor") {
+  let points=(part_type=="Group")?[15,10,6]:[10,6,3];
+
+  const user = req.user;
+  if (user.user_type !== "Convenor" && user.user_type !== "Admin") {
     return res.status(401).json({
       status: false,
       message: "You are not authorized to create an event",
+    });
+  }
+
+  if(minStudents>maxStudents){
+    return res.status(400).json({
+      status: false,
+      message: "Maximum should be more than Minimum",
     });
   }
 
@@ -52,7 +60,7 @@ const createEvent = asyncHandler(async (req, res) => {
     // Send invitations to all Teachers
     const teachers = await User.find({ user_type: "Teacher" });
 
-    const invitations = teachers.map(async (teacher) => {
+      const invitations = teachers.map(async (teacher) => {
       const subject = `Invitation to Register for "${name}" Event`;
       const receiver = teacher.email;
 
@@ -175,7 +183,8 @@ const updateEvent = asyncHandler(async (req, res) => {
       points,
     } = req.body;
 
-    if (req.user.user_type !== "Convenor") {
+    const user=req.user;
+    if (user.user_type !== "Convenor" && user.user_type !== "Admin") {
       return res.status(401).json({
         status: false,
         message: "You are not authorized to create an event",
@@ -291,16 +300,26 @@ const deleteEvent = asyncHandler(async (req, res) => {
 
 
 const getAllEventsForClass = asyncHandler(async (req, res) => {
-  const inchargeId = req.params.inchargeId;
+  const inchargeId = req.user._id;
+
+  console.log({inchargeId})
   try {
     const classInstance   = await Class.findOne({incharge:inchargeId});
-    console.log(classInstance);
+    if(!classInstance){
+        return res.status(400).json({
+            status: false,
+            message: "Class not found.",
+          });
+    }
+    
     const classId = classInstance._id ;
-    const events = await Event.find({ is_active: true });
-    console.log({events})
-    const registeredEvents = await Registration.find({ classId });
+    const events = await Event.find({ is_active: true , type:classInstance.type});
+    
+    const currentYear = new Date().getFullYear();
 
-    console.log({registeredEvents})
+    const registeredEvents = await Registration.find({ classId , year:parseInt(currentYear) });
+
+    
   
     const result = events.map((event) => {
       const registeredEvent = registeredEvents.find((regEvent) => regEvent.eventId.toString() === event._id.toString());
