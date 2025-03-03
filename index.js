@@ -11,54 +11,10 @@ const cookieParser = require("cookie-parser");
 const events = require("./routes/event.route.js");
 const errorHandler = require("./helpers/error.helper.js");
 const resultRouter = require("./routes/result.route.js");
-const Class = require("./models/class.model.js");
+// const Class = require("./models/class.model.js");
 const allowedOrigins = [process.env.FRONTEND_URL];
  
-// const updateExistingClasses = async () => {
-//     try {
-//       const classes = await Class.find();
-  
-//       for (const cls of classes) {
-//         // Remove incharge field if it exists
-//         if (cls.incharge !== undefined) {
-//           cls.set("incharge", undefined, { strict: false });
-//         }
-  
-//         // Generate username from name
-//         cls.username = cls.name.replace(/\s+/g, "").toLowerCase();
-  
-//         // Set email to the fixed value
-//         cls.email = "imaniketgupta1245@gmail.com";
-  
-//         // Assign default password (it will be hashed via pre-save middleware)
-//         cls.password = "1234";
-//         cls.markModified("password"); // Ensure Mongoose knows password is modified
-  
-//         await cls.save();
-//       }
-  
-//       console.log("All classes updated successfully!");
-//     } catch (error) {
-//       console.error("Error updating classes:", error);
-//     }
-//   };
-  
-//   // Ensure DB is connected before running update function
-//   const start = async () => {
-//     try {
-//       await connectDB();
-//       console.log("Database Connected Successfully!");
-//       await updateExistingClasses(); // Ensure function is awaited
-//       mongoose.connection.close(); // Close DB connection after update
-//     } catch (error) {
-//       console.error("Database Connection Error:", error);
-//     }
-//   };
-// start();
-  
-
-connectDB();
-
+ connectDB();
 const corsOptions = {
   origin: (origin, callback) => {
     const isAllowed = !origin || allowedOrigins.includes(origin);
