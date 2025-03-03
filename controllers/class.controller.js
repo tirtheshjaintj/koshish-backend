@@ -28,7 +28,7 @@ const LoginByClass = asyncHandler(async (req, res) => {
     status: true,
     token: setClassUser(classDetail),
     message: "Login successful",
-    class: classWithOutPass,
+    data: {...classWithOutPass,type:"Class"},
   });
 });
 
