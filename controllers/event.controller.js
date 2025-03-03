@@ -29,7 +29,7 @@ const createEvent = asyncHandler(async (req, res) => {
     });
   }
 
-  if(minStudents>maxStudents){
+  if(parseInt(minStudents)>parseInt(maxStudents)){
     return res.status(400).json({
       status: false,
       message: "Maximum should be more than Minimum",
@@ -143,7 +143,7 @@ const createEvent = asyncHandler(async (req, res) => {
 // Get All Events
 const getAllEvents = asyncHandler(async (req, res) => {
   try {
-    const events = await Event.find({is_active:true});
+    const events = await Event.find({is_active:true}).populate("convenor", "name email user_type");
     res.status(200).json({ status: true, events });
   } catch (error) {
     console.error(error);
@@ -151,10 +151,11 @@ const getAllEvents = asyncHandler(async (req, res) => {
   }
 });
 
+
 // Get Single Event by ID
 const getEventById = asyncHandler(async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate("convenor", "name email user_type");
     console.log(event);
     if (!event) {
       return res
@@ -297,8 +298,6 @@ const deleteEvent = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const getAllEventsForClass = asyncHandler(async (req, res) => {
   const inchargeId = req.user._id;
 
@@ -335,7 +334,6 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 });
-
 
 module.exports = {
   createEvent,
