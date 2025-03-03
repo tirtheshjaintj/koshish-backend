@@ -7,17 +7,19 @@ const {
     getAllClasses,
     getClassById,
     updateClass,
-    deleteClass
+    deleteClass,
+    LoginByClass
 } = require('../controllers/class.controller');
 
 const router = express.Router();
 
+
+router.post("/login",LoginByClass)
 // Create a new class
 router.post('/',
     restrictLogIn,
     [
         check('name').notEmpty().withMessage('Class name is required.'),
-        check('incharge').isMongoId().withMessage('Incharge must be a valid user ID.'),
         check('type').optional().notEmpty().withMessage('Class type cannot be empty.').isIn(["Senior","Junior"])
         .withMessage('Class type can be Senior or Junior')
     ],
