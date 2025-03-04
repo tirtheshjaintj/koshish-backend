@@ -9,16 +9,14 @@ const User = require("../models/user.model.js");
 const getResultByEventId = asyncHandler(async (req, res) => {
   try {
     const { eventId } = req.params;
+    const {year}=req.query;
     const eventExists = await Event.findById(eventId);
-console.log(eventExists);
     if (!eventExists) {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
-
-    const result = await Result.findOne({ eventId }).populate("eventId").populate("result.classId");
-
+    const result = await Result.findOne({ eventId,year}).populate("eventId").populate("result");
     if (!result) {
-      return res.status(404).json({ success: false, message: "Result not found for this event" });
+      return res.status(404).json({ success: false, message: "Result not found for this event",event:eventExists});
     }
 
     res.status(200).json({ success: true, data: result });
@@ -30,7 +28,7 @@ console.log(eventExists);
 // Get a single result by ID
 const getResultById = asyncHandler(async (req, res) => {
   try {
-    const result = await Result.findById(req.params.id).populate("eventId").populate("result.classId");
+    const result = await Result.findById(req.params.id).populate("eventId").populate("result");
     if (!result) {
       return res.status(404).json({ success: false, message: "Result not found" });
     }
@@ -48,9 +46,8 @@ const createResult = asyncHandler(async (req, res) => {
     if (!eventExists) {
       return res.status(400).json({ success: false, message: "Event not found" });
     }
-
     for (const item of result) {
-      const classExists = await Class.findById(item.classId);
+      const classExists = await Class.findOne({_id:item,type:eventExists.type});
       if (!classExists) {
         return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
       }

@@ -67,7 +67,6 @@ const createRegistration = asyncHandler(async (req, res) => {
 
 const getAllRegistrations = asyncHandler(async (req, res) => {
     try {
-        
         const currentYear = new Date().getFullYear();
         const registrations = await Registration.find({ year: parseInt(currentYear) })
           .populate("classId")
