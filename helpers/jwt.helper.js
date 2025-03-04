@@ -15,6 +15,9 @@ async function getUser(token) {
         let user = await User.findById(decoded.id);
         if(!user){
             user=await Class.findById(decoded.id);
+            if(user){
+                user={...user,user_type:"Class"};
+            }
         }
         return user;
     } catch (err) {

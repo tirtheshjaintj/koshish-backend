@@ -62,7 +62,7 @@ const login = asyncHandler(async (req, res) => {
             console.error("Failed to send login notification email.");
         }
 
-        return res.status(200).json({ status: true, message: 'Login successful!', token });
+        return res.status(200).json({ status: true, message: 'Login successful!', token,data:user });
     } catch (error) {
         console.log(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });

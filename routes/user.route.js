@@ -27,7 +27,7 @@ router.post('/signup',
         check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
         check('user_type')
         .exists().withMessage('User type is required')
-        .isIn(['Convenor', 'Teacher']).withMessage('User type must be either Convenor or Teacher')    
+        .isIn(['Convenor']).withMessage('User type must be Convenor')    
     ],
     restrictLogIn,
     validate,
@@ -56,7 +56,7 @@ router.put('/update/:userId',
         check('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters long.'),
         check('user_type')
             .exists().withMessage('User type is required')
-            .isIn(['Admin', 'Convenor', 'Teacher']).withMessage('User type must be either Admin, Convenor, or Teacher')
+            .isIn(['Admin', 'Convenor']).withMessage('User type must be either Admin, Convenor')
     ],
     restrictLogIn,
     validate,
