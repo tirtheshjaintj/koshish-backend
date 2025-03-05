@@ -155,7 +155,7 @@ const getAllEvents = asyncHandler(async (req, res) => {
 const getEventById = asyncHandler(async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    console.log(event);
+    
     if (!event) {
       return res
         .status(404)
@@ -302,9 +302,10 @@ const deleteEvent = asyncHandler(async (req, res) => {
 const getAllEventsForClass = asyncHandler(async (req, res) => {
   const inchargeId = req.user._id;
 
-  console.log({inchargeId})
+  
   try {
     const classInstance   = await Class.findOne({incharge:inchargeId});
+    
     if(!classInstance){
         return res.status(400).json({
             status: false,

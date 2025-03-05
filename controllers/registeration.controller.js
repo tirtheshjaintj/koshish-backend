@@ -7,7 +7,6 @@ const createRegistration = asyncHandler(async (req, res) => {
     const { eventId, students } = req.body;
     try {
         const userId=req.user._id;
-        console.log({userId})
         const classExists = await Class.findOne({incharge:userId});
         if (!classExists) {
             return res.status(400).json({
@@ -192,9 +191,8 @@ const deleteRegistration = asyncHandler(async (req, res) => {
 
 
 const getClassRegisterations = asyncHandler(async(req,res)=>{
-    console.log("requser:",req.user)
+    
     const userId = req?.user?._id;
-    console.log("userId : " , userId)
     
     try {
         const currentYear = new Date().getFullYear();

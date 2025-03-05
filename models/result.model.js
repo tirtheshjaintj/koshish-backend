@@ -22,11 +22,6 @@ const resultSchema = new mongoose.Schema({
             ref: "Class",
             required: [true, "Class ID is required"],  
         },
-        studentName: {
-            type: String,
-            required: [true, "Student name is required"],
-            trim: true
-        },
         position: {
             type: Number, 
             enum: [1, 2, 3],
@@ -39,6 +34,10 @@ const resultSchema = new mongoose.Schema({
     is_active:{
         type:Boolean,
         default:true
+    },
+    year:{
+        type: Number,
+        required: [true, "Year is required"],
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
