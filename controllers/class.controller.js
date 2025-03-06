@@ -3,6 +3,7 @@ const Class = require("../models/class.model");
 const User = require("../models/user.model");
 const { setClassUser } = require("../helpers/jwt.helper");
 const sendMail = require("../helpers/mail.helper");
+const bcrypt = require("bcrypt")
 
 const LoginByClass = asyncHandler(async (req, res) => {
   console.log(req.body);
@@ -79,16 +80,35 @@ const createClass = asyncHandler(async (req, res) => {
 const getAllClasses = asyncHandler(async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.find({ _id: userId, user_type: "Admin" });
+    const user = await User.findOne({ _id: userId, user_type: "Admin" });
+
     if (!user) {
       return res
         .status(400)
         .json({ status: false, message: "Only Admin can access class." });
     }
-    const classes = await Class.find();
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const searchQuery = req.query.search || "";  
+    const skip = (page - 1) * limit;
+
+    let filter = {};
+    if (searchQuery) {
+      filter = {
+        name: { $regex: searchQuery, $options: "i" }, // Case-insensitive search
+      };
+    }
+
+    const classes = await Class.find(filter).skip(skip).limit(limit);
+    const totalClasses = await Class.countDocuments(filter);
+
     res.status(200).json({
       status: true,
       message: "Classes retrieved successfully!",
+      totalPages: Math.ceil(totalClasses / limit),
+      currentPage: page,
+      totalClasses,
       classes,
     });
   } catch (error) {
@@ -96,6 +116,7 @@ const getAllClasses = asyncHandler(async (req, res) => {
     res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 });
+
 
 const getClassById = asyncHandler(async (req, res) => {
   const { classId } = req.params;
