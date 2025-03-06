@@ -3,7 +3,7 @@ const Class = require("../models/class.model");
 const User = require("../models/user.model");
 const { setClassUser } = require("../helpers/jwt.helper");
 const sendMail = require("../helpers/mail.helper");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 const LoginByClass = asyncHandler(async (req, res) => {
   console.log(req.body);
@@ -90,7 +90,7 @@ const getAllClasses = asyncHandler(async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const searchQuery = req.query.search || "";  
+    const searchQuery = req.query.search || "";
     const skip = (page - 1) * limit;
 
     let filter = {};
@@ -116,7 +116,6 @@ const getAllClasses = asyncHandler(async (req, res) => {
     res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 });
-
 
 const getClassById = asyncHandler(async (req, res) => {
   const { classId } = req.params;
@@ -149,7 +148,7 @@ const getClassById = asyncHandler(async (req, res) => {
 
 const updateClass = asyncHandler(async (req, res) => {
   const { classId } = req.params;
-  const { name, type, email, password } = req.body;
+  const { name, type, email, password, is_active } = req.body;
 
   try {
     const userId = req.user.id;
@@ -184,17 +183,21 @@ const updateClass = asyncHandler(async (req, res) => {
     const updateFields = {};
     if (name) {
       updateFields.name = name;
-      updateFields.username = name.replace(/\s+/g, "").toLowerCase();  
+      updateFields.username = name.replace(/\s+/g, "").toLowerCase();
     }
     if (type) updateFields.type = type;
     if (email) updateFields.email = email;
-    if (password) updateFields.password = await bcrypt.hash(password, 12);  
+    if (password) updateFields.password = await bcrypt.hash(password, 12);
 
     // Update the class
-    const updatedClass = await Class.findByIdAndUpdate(classId, updateFields, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { ...updateFields, is_active },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedClass) {
       return res
@@ -202,15 +205,17 @@ const updateClass = asyncHandler(async (req, res) => {
         .json({ status: false, message: "Class not found." });
     }
 
-    // Send email notification
-    await sendMail({
-      subject: "Class Updated",
-      to: updatedClass.email,
-      text: `Your Class Details have been updated by Admin. 
-        Your Class Name: ${updatedClass.name} - ${updatedClass.type}
-        Your Password: ${password} (hashed for security)
-        Your Username: ${updatedClass.username}`,
-    });
+    let text = `Your Class Details have been updated by Admin. 
+    Your Class Name: ${updatedClass.name} - ${updatedClass.type}
+    Your Password: ${password}
+    Your Username: ${updatedClass.username}`;
+
+    if (is_active === false) {
+      text = `Class Account has been deactivated by Admin. 
+  Your Class Name: ${updatedClass.name} - ${updatedClass.type}`;
+    }
+
+    await sendMail("Class Updated", email, text);
 
     res.status(200).json({
       status: true,

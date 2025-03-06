@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
 const Event = require("./event.model");
-const Class = require("./class.model");
 
 const resultSchema = new mongoose.Schema({
     eventId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Event",
         unique: [true, "Event must be unique for each result"],
-        required: [true, "Event ID is required"],  
+        required: [true, "Event ID is required"],
         validate: {
             validator: async function (value) {
                 const eventExists = await Event.findById(value);
@@ -16,25 +15,15 @@ const resultSchema = new mongoose.Schema({
             message: "Event not found"
         }
     },
-    result:[{
-        classId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Class",
-            required: [true, "Class ID is required"],  
-        },
-        studentName: {
-            type: String,
-            required: [true, "Student name is required"],
-            trim: true
-        },
-        position: {
-            type: Number, 
-            enum: [1, 2, 3],
-            required: [true, "Position is required"],
-            min: [1, "Position must be at least 1"],
-            max: [3, "Position must be at most 3"]
-        }
-
+    year: {
+        type: Number,
+        default: new Date().getFullYear(),
+        required: [true, "Year is required"]
+    },
+    result: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+        required: [true, "Class ID is required"]
     }],
     is_active:{
         type:Boolean,
@@ -45,7 +34,7 @@ const resultSchema = new mongoose.Schema({
 });
 
 // Ensure that each event can only have one result per position
-// resultSchema.index({ eventId: 1, position: 1 }, { unique: true });
+resultSchema.index({ eventId: 1, year: 1 }, { unique: true });
 
 const Result = mongoose.model("Result", resultSchema);
 

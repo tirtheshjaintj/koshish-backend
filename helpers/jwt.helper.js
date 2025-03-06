@@ -11,9 +11,14 @@ async function getUser(token) {
     if (!token) return null; 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        console.log(decoded)
-        const user = await User.findById(decoded.id);
-        
+        console.log(decoded);
+        let user = await User.findById(decoded.id);
+        if(!user){
+            user=await Class.findById(decoded.id);
+            if(user){
+                user={...user,user_type:"Class"};
+            }
+        }
         return user;
     } catch (err) {
         console.log(err);
