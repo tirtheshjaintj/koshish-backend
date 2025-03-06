@@ -4,6 +4,8 @@ const Event = require("../models/event.model.js");
 const Class = require("../models/class.model.js");
 const sendMail = require("../helpers/mail.helper.js");
 const User = require("../models/user.model.js");
+const mongoose = require("mongoose");
+
 
 // Get result by Event ID
 const getResultByEventId = asyncHandler(async (req, res) => {
@@ -192,6 +194,56 @@ const declareResultForEvent = asyncHandler(async (req, res) => {
 
 
 
+const finalResult = asyncHandler(async (req, res) => {
+  try {
+    const {year,type}=req.query;
+    
+    if(type!=="Senior" && type!=="Junior"){
+      return res.status(404).json({ message: "Type Not Found" });
+    }
+
+    // Fetch all active events with points assigned
+    const events = await Event.find({ is_active: true,type, points: { $exists: true, $not: { $size: 0 } }});
+    
+    if (!events.length) {
+      return res.status(404).json({ message: "No active events with points found." });
+    }
+    
+    // Fetch all results
+    const results = await Result.find({year}).populate("result", "_id");
+    
+    let classScores = new Map();
+    
+    results.forEach((result) => {
+      const event = events.find(e => e._id.equals(result.eventId));
+      if (!event || !event.points || event.points.length < 3) return;
+      result.result.forEach((classObj, index) => {
+        let classId = classObj._id.toString(); // Ensure we're using only the ID
+        let pointsAwarded = event.points[index] || 0;
+        classScores.set(classId, (classScores.get(classId) || 0) + pointsAwarded);
+      });
+    });
+    
+    // Convert map to array and sort by points in descending order
+    const sortedClasses = [...classScores.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    // Fetch class details with proper ObjectId conversion
+    // const topClasses = await Class.find({ _id: { $in: sortedClasses.map(c => new mongoose.Types.ObjectId(c[0])) } }).select("name").lean();
+    const topClasses = await Class.find({type}).select("name type").lean();
+    
+    // Attach scores
+    const finalResult = topClasses.map(cls => ({
+      ...cls,
+      totalPoints: classScores.get(cls._id.toString()) || 0,
+    })).sort((a, b) => b.totalPoints - a.totalPoints);
+    
+    res.status(200).json({ topClasses: finalResult });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
+
 
 module.exports = {
   getResultByEventId,
@@ -199,5 +251,6 @@ module.exports = {
   createResult,
   updateResult,
   deleteResult,
-  declareResultForEvent
+  declareResultForEvent,
+  finalResult
 };
