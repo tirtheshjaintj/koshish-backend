@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { createResult, getResultByEventId, updateResult, deleteResult, declareResultForEvent } = require('../controllers/results.controller.js');
+const { createResult, getResultByEventId, updateResult, deleteResult, declareResultForEvent, finalResult } = require('../controllers/results.controller.js');
 const { restrictLogIn } = require('../middlewares/authCheck.js');
 const { check} = require("express-validator");
 const { validate } = require('../middlewares/validate.js');
@@ -29,7 +29,7 @@ resultRouter.post(
 resultRouter.put('/update/:id',restrictLogIn, updateResult);
 resultRouter.delete('/delete/:id',restrictLogIn,deleteResult);
 resultRouter.get('/declare/:eventId',restrictLogIn,declareResultForEvent);
-
+resultRouter.get("/finalResult",finalResult);
 
 
 module.exports = resultRouter;
