@@ -7,7 +7,7 @@ const createRegistration = asyncHandler(async (req, res) => {
     const { eventId, students } = req.body;
     try {
         const userId=req.user._id;
-        const classExists = await Class.findOne({incharge:userId});
+        const classExists = await Class.findById(userId);
         if (!classExists) {
             return res.status(400).json({
                 status: false,
@@ -227,7 +227,7 @@ const getRegisterationsByCategory = asyncHandler(async (req, res) => {
     }
 
     const user = req?.user;
-    if (user.user_type !== "Admin") {
+    if (user.user_type !== "Admin" && user.user_type !== "Convenor") {
         return res.status(400).json({
             status: false,
             message: "Only Admin can access this route.",
@@ -251,11 +251,14 @@ const getRegisterationsByCategory = asyncHandler(async (req, res) => {
         const registrations = await Registration.find({
             eventId: event._id,
             year: parseInt(currentYear),
-        })
-            .populate("classId")
+        }).populate("classId")
             .populate("eventId");
+        
+        console.log({registrations})
 
-        return res.status(200).json({ status: true, message: "Registrations Fetched", registrations });
+            
+
+        return res.status(200).json({ status: true, message: "Registrations Fetched", registrations , event });
     } catch (error) {
         console.error(error);
         res.status(500).json({

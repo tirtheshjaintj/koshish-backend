@@ -29,6 +29,12 @@ router.post(
 router.get("/", getAllEvents);
 
 
+
+router.get('/class' , 
+    restrictLogIn
+    ,getAllEventsForClass);
+
+    
 router.get(
     "/:id",
     [param("id").isMongoId().withMessage("Invalid event ID.")],
@@ -65,10 +71,6 @@ router.delete(
     deleteEvent
 );
 
-router.get('/class/:inchargeId' , 
-    restrictLogIn,
-    [param("inchargeId").isMongoId().withMessage("Invalid inchargeId ID.")]
-    ,getAllEventsForClass);
 
 
 module.exports = router;
