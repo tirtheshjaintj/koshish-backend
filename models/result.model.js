@@ -28,6 +28,10 @@ const resultSchema = new mongoose.Schema({
     is_active:{
         type:Boolean,
         default:true
+    },
+    year:{
+        type: Number,
+        required: [true, "Year is required"],
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields

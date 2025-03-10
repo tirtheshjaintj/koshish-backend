@@ -299,11 +299,14 @@ const deleteEvent = asyncHandler(async (req, res) => {
 });
 
 const getAllEventsForClass = asyncHandler(async (req, res) => {
-  const inchargeId = req.user._id;
+  const classId = req.user._id;
 
-  console.log({inchargeId})
+  console.log({user : req.user})
+
+  
   try {
-    const classInstance   = await Class.findOne({incharge:inchargeId});
+    const classInstance   = await Class.findById(classId);
+    
     if(!classInstance){
         return res.status(400).json({
             status: false,
@@ -311,12 +314,12 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
           });
     }
     
-    const classId = classInstance._id ;
-    const events = await Event.find({ is_active: true , type:classInstance.type});
+
+    const events = await Event.find({ is_active: true , type:classInstance.type });
     
     const currentYear = new Date().getFullYear();
 
-    const registeredEvents = await Registration.find({ classId , year:parseInt(currentYear) });
+    const registeredEvents = await Registration.find({ classId : classInstance._id , year:parseInt(currentYear) });
 
     
   
