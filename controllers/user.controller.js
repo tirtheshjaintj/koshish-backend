@@ -4,7 +4,7 @@ const sendMail = require('../helpers/mail.helper');
 const crypto = require('crypto');
 const asyncHandler = require("express-async-handler");
 
-const validUserTypes = ["Admin", "Teacher", "Convenor"];
+const validUserTypes = ["Admin", "Convenor"];
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, phone_number, password, user_type } = req.body;
@@ -70,22 +70,40 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateUser = asyncHandler(async (req, res) => {
-    const {userId}=req.params;
-    const { name,email, phone_number,user_type,is_active} = req.body;
-    try {
-        const user=req.user;
-        if(user && user.user_type!="Admin")  return res.status(401).json({ status: false, message: 'Not Allowed' });
-        const user2 = await User.findByIdAndUpdate(
-            userId,
-            { name, email, phone_number ,user_type,is_active},
-            { new: true, runValidators: true }
-        );
+    const { userId } = req.params;
+    const { name, email, phone_number, user_type, is_active, password } = req.body;
 
-        if (!user2) {
+    try {
+        const user = req.user;
+        if (user && user.user_type !== "Admin") {
+            return res.status(401).json({ status: false, message: 'Not Allowed' });
+        }
+
+        const userToUpdate = await User.findById(userId);
+        if (!userToUpdate) {
             return res.status(404).json({ status: false, message: 'User not found.' });
         }
-        res.status(200).json({ status: true, message: 'Details updated successfully!', user });
+
+        // Update only provided fields
+        if (name) userToUpdate.name = name;
+        if (email) userToUpdate.email = email;
+        if (phone_number) userToUpdate.phone_number = phone_number;
+        if (user_type) userToUpdate.user_type = user_type;
+        if (typeof is_active !== 'undefined') userToUpdate.is_active = is_active;
         
+        if (password) userToUpdate.password = password;
+
+        const updatedUser = await userToUpdate.save(); 
+
+        if(!updatedUser) {
+            return res.status(400).json({ status: false, message: 'User not found.' });
+        }
+
+    
+        const updatedUserData = userToUpdate.toObject();
+        delete updatedUserData.password;
+        res.status(200).json({ status: true, message: 'Details updated successfully!', user: updatedUserData });
+
     } catch (error) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
