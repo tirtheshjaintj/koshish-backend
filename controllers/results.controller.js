@@ -15,7 +15,7 @@ const getResultByEventId = asyncHandler(async (req, res) => {
     if (!eventExists) {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
-    const result = await Result.findOne({ eventId,year}).populate("eventId").populate("result");
+    const result = await Result.findOne({ eventId, year :  parseInt(year)}).populate("eventId").populate("result");
     if (!result) {
       return res.status(404).json({ success: false, message: "Result not found for this event",event:eventExists});
     }
@@ -43,22 +43,32 @@ const getResultById = asyncHandler(async (req, res) => {
 const createResult = asyncHandler(async (req, res) => {
   try {
     const { eventId, result } = req.body;
+    
     const eventExists = await Event.findById(eventId);
     if (!eventExists) {
       return res.status(400).json({ success: false, message: "Event not found" });
     }
+
+    
     for (const item of result) {
-      const classExists = await Class.findOne({_id:item,type:eventExists.type});
+      const classExists = await Class.findById(item);
       if (!classExists) {
-        return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
+        return res.status(400).json({ success: false, message: `Class not found for ID: ${item}` });
       }
-    }
-    const existingResult = await Result.findOne({ eventId });
-    if (existingResult) {
-      return res.status(400).json({ success: false, message: "Result for this event already exists" });
+      
     }
 
-    const newResult = await Result.create({ eventId, result });
+    let existingResult = await Result.findOne({ eventId });
+    if (existingResult) {
+      
+      existingResult.result = result;
+      await existingResult.save();
+      return res.status(200).json({ success: true, message: "Result Updated successfully" });
+    }
+
+    
+    const currentYear = new Date().getFullYear();
+    const newResult = await Result.create({ eventId, result , year:parseInt(currentYear) });
 
     res.status(201).json({ success: true, message: "Result created successfully", data: newResult });
   } catch (error) {
@@ -78,12 +88,12 @@ const updateResult = asyncHandler(async (req, res) => {
     }
 
     for (const item of result) {
-      const classExists = await Class.findById(item.classId);
+      const classExists = await Class.findById(item._id);
       if (!classExists) {
-        return res.status(400).json({ success: false, message: `Class not found for ID: ${item.classId}` });
+        return res.status(400).json({ success: false, message: `Class not found for ID: ${item._id}` });
       }
     }
-
+    
     existingResult.result = result;
     await existingResult.save();
 
