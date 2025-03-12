@@ -4,7 +4,6 @@ const Event = require("../models/event.model.js");
 const Class = require("../models/class.model.js");
 const sendMail = require("../helpers/mail.helper.js");
 const User = require("../models/user.model.js");
-const mongoose = require("mongoose");
 
 
 // Get result by Event ID
@@ -224,9 +223,6 @@ const finalResult = asyncHandler(async (req, res) => {
       });
     });
     
-    // Convert map to array and sort by points in descending order
-    const sortedClasses = [...classScores.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
-
     // Fetch class details with proper ObjectId conversion
     // const topClasses = await Class.find({ _id: { $in: sortedClasses.map(c => new mongoose.Types.ObjectId(c[0])) } }).select("name").lean();
     const topClasses = await Class.find({type}).select("name type").lean();

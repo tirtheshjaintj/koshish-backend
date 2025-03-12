@@ -257,7 +257,7 @@ const getRegisterationsByCategory = asyncHandler(async (req, res) => {
             .populate("classId")
             .populate("eventId");
 
-        return res.status(200).json({ status: true, message: "Registrations Fetched", registrations });
+        return res.status(200).json({ status: true, message: "Registrations Fetched", registrations,event });
     } catch (error) {
         console.error(error);
         res.status(500).json({
