@@ -114,9 +114,6 @@ const getRegistrationById = asyncHandler(async (req, res) => {
     }
 });
 
-
-
-
 const updateRegistration = asyncHandler(async (req, res) => {
     const { registrationId } = req.params;
     const { classId, eventId, students } = req.body;
@@ -188,7 +185,6 @@ const deleteRegistration = asyncHandler(async (req, res) => {
     }
 });
 
-
 const getClassRegisterations = asyncHandler(async(req,res)=>{
     
     const userId = req?.user?._id;
@@ -255,7 +251,6 @@ const getRegisterationsByCategory = asyncHandler(async (req, res) => {
             .populate("eventId");
         
         console.log({registrations})
-
             
 
         return res.status(200).json({ status: true, message: "Registrations Fetched", registrations , event });
@@ -267,7 +262,6 @@ const getRegisterationsByCategory = asyncHandler(async (req, res) => {
         });
     }
 });
-
 
 
 module.exports = {

@@ -11,10 +11,13 @@ const cookieParser = require("cookie-parser");
 const events = require("./routes/event.route.js");
 const errorHandler = require("./helpers/error.helper.js");
 const resultRouter = require("./routes/result.route.js");
-// const Class = require("./models/class.model.js");
-const allowedOrigins = [process.env.FRONTEND_URL];
+
+const Class = require("./models/class.model.js");
+const allowedOrigins = [process.env.FRONTEND_URL,"https://pctekoshish2.netlify.app"];
  
- connectDB();
+
+connectDB();
+
 const corsOptions = {
   origin: (origin, callback) => {
     const isAllowed = !origin || allowedOrigins.includes(origin);
