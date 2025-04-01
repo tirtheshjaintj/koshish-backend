@@ -9,9 +9,8 @@ const User = require("../models/user.model.js");
 const getResultByEventId = asyncHandler(async (req, res) => {
   try {
     const { eventId } = req.params;
-
     const eventExists = await Event.findById(eventId);
-
+console.log(eventExists);
     if (!eventExists) {
       return res.status(404).json({ success: false, message: "Event not found" });
     }

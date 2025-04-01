@@ -62,19 +62,18 @@ const eventSchema = new mongoose.Schema({
         required: [true, "Event location is required"],
         trim: true,
         maxlength: [200, "Location cannot exceed 200 characters"]
-    },
-    convenor: {
+    },convenor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: [true, "Convenor is required"],
         validate: {
             validator: async function (value) {
                 const user = await User.findById(value);
-                return user && user.user_type === "Convenor"; 
+                return user && (user.user_type === "Convenor" || user.user_type === "Admin"); 
             },
-            message: "Convenor must be a valid user with the user_type 'Teacher'"
+            message: "Convenor must be a valid user with the user_type 'Convenor' or 'Admin'"
         }
-    },
+    },    
     points: {
         type: [Number],
         required: false,
