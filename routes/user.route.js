@@ -98,5 +98,4 @@ router.post('/google_login', [
     check('google_id').isLength({ min: 21, max: 21 }).matches(/^\d{21}$/).withMessage('Not a valid google_id')
 ], validate, google_login);
 
-
-module.exports = router;
+ module.exports = router;

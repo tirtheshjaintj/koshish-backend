@@ -88,6 +88,7 @@ const getAllClasses = asyncHandler(async (req, res) => {
         .json({ status: false, message: "Only Admin can access class." });
     }
 
+    // Filter has to implement
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const searchQuery = req.query.search || "";
@@ -148,11 +149,11 @@ const getClassById = asyncHandler(async (req, res) => {
 
 const updateClass = asyncHandler(async (req, res) => {
   const { classId } = req.params;
+
   const { name, type, email, password, is_active } = req.body;
 
   try {
-    const userId = req.user.id;
-    const user = await User.findOne({ _id: userId, user_type: "Admin" });
+    const user = await Class.findOne({ _id: classId });
 
     if (!user) {
       return res

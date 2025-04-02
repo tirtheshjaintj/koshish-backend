@@ -6,7 +6,6 @@ const Class = require("../models/class.model.js");
 const Registration = require("../models/registration.model.js");
 // Create an Event
 const createEvent = asyncHandler(async (req, res) => {
-  
   const {
     name,
     type,
@@ -15,11 +14,10 @@ const createEvent = asyncHandler(async (req, res) => {
     rules,
     maxStudents,
     minStudents,
-    location
+    location,
   } = req.body;
 
-
-  let points=(part_type=="Group")?[15,10,6]:[10,6,3];
+  let points = part_type == "Group" ? [15, 10, 6] : [10, 6, 3];
 
   const user = req.user;
   if (user.user_type !== "Convenor" && user.user_type !== "Admin") {
@@ -29,7 +27,7 @@ const createEvent = asyncHandler(async (req, res) => {
     });
   }
 
-  if(parseInt(minStudents)>parseInt(maxStudents)){
+  if (parseInt(minStudents) > parseInt(maxStudents)) {
     return res.status(400).json({
       status: false,
       message: "Maximum should be more than Minimum",
@@ -60,7 +58,7 @@ const createEvent = asyncHandler(async (req, res) => {
     // Send invitations to all Teachers
     const teachers = await User.find({ user_type: "Teacher" });
 
-      const invitations = teachers.map(async (teacher) => {
+    const invitations = teachers.map(async (teacher) => {
       const subject = `Invitation to Register for "${name}" Event`;
       const receiver = teacher.email;
 
@@ -143,7 +141,10 @@ const createEvent = asyncHandler(async (req, res) => {
 // Get All Events
 const getAllEvents = asyncHandler(async (req, res) => {
   try {
-    const events = await Event.find({is_active:true}).populate("convenor", "name email user_type");
+    const events = await Event.find({}).populate(
+      "convenor",
+      "name email user_type"
+    );
     res.status(200).json({ status: true, events });
   } catch (error) {
     console.error(error);
@@ -151,11 +152,13 @@ const getAllEvents = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Get Single Event by ID
 const getEventById = asyncHandler(async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate("convenor", "name email user_type");
+    const event = await Event.findById(req.params.id).populate(
+      "convenor",
+      "name email user_type"
+    );
     console.log(event);
     if (!event) {
       return res
@@ -176,6 +179,7 @@ const updateEvent = asyncHandler(async (req, res) => {
       type,
       part_type,
       description,
+      is_active,
       rules,
       maxStudents,
       minStudents,
@@ -184,8 +188,8 @@ const updateEvent = asyncHandler(async (req, res) => {
       points,
     } = req.body;
 
-    const user=req.user;
-    if (user.user_type !== "Convenor" && user.user_type !== "Admin") {
+    const user = req.user;
+    if (user.user_type === "Convenor" && user.user_type === "Admin") {
       return res.status(401).json({
         status: false,
         message: "You are not authorized to create an event",
@@ -199,6 +203,7 @@ const updateEvent = asyncHandler(async (req, res) => {
         type,
         part_type,
         description,
+        is_active,
         rules,
         maxStudents,
         minStudents,
@@ -291,7 +296,9 @@ const deleteEvent = asyncHandler(async (req, res) => {
         .status(400)
         .json({ status: false, message: "Event not found" });
     }
-    res.status(200).json({ status: true, message: "Event deleted successfully" });
+    res
+      .status(200)
+      .json({ status: true, message: "Event deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: false, message: "Internal server error" });
@@ -301,39 +308,45 @@ const deleteEvent = asyncHandler(async (req, res) => {
 const getAllEventsForClass = asyncHandler(async (req, res) => {
   const classId = req.user._id;
 
-  console.log({user : req.user})
+  console.log({ user: req.user });
 
-  
   try {
-    const classInstance   = await Class.findById(classId);
-    
-    if(!classInstance){
-        return res.status(400).json({
-            status: false,
-            message: "Class not found.",
-          });
-    }
-    
+    const classInstance = await Class.findById(classId);
 
-    const events = await Event.find({ is_active: true , type:classInstance.type });
-    
+    if (!classInstance) {
+      return res.status(400).json({
+        status: false,
+        message: "Class not found.",
+      });
+    }
+
+    const events = await Event.find({
+      is_active: true,
+      type: classInstance.type,
+    });
+
     const currentYear = new Date().getFullYear();
 
-    const registeredEvents = await Registration.find({ classId : classInstance._id , year:parseInt(currentYear) });
+    const registeredEvents = await Registration.find({
+      classId: classInstance._id,
+      year: parseInt(currentYear),
+    });
 
-    
-  
     const result = events.map((event) => {
-      const registeredEvent = registeredEvents.find((regEvent) => regEvent.eventId.toString() === event._id.toString());
+      const registeredEvent = registeredEvents.find(
+        (regEvent) => regEvent.eventId.toString() === event._id.toString()
+      );
       return {
         ...event.toObject(),
         register: registeredEvent ? registeredEvent.toObject() : null,
       };
     });
-  
-    res.status(200).json({ status: true, message: "Event fetched successfully" , result });
+
+    res
+      .status(200)
+      .json({ status: true, message: "Event fetched successfully", result });
   } catch (error) {
-    console.log("error : " , error)
+    console.log("error : ", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 });
@@ -344,5 +357,5 @@ module.exports = {
   getEventById,
   updateEvent,
   deleteEvent,
-  getAllEventsForClass
+  getAllEventsForClass,
 };
