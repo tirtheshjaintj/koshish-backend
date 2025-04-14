@@ -77,31 +77,31 @@ const createResult = asyncHandler(async (req, res) => {
 });
 
 // Update result
-const updateResult = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { result } = req.body;
+// const updateResult = asyncHandler(async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { result } = req.body;
 
-    const existingResult = await Result.findById(id);
-    if (!existingResult) {
-      return res.status(404).json({ success: false, message: "Result not found" });
-    }
+//     const existingResult = await Result.findById(id);
+//     if (!existingResult) {
+//       return res.status(404).json({ success: false, message: "Result not found" });
+//     }
 
-    for (const item of result) {
-      const classExists = await Class.findById(item._id);
-      if (!classExists) {
-        return res.status(400).json({ success: false, message: `Class not found for ID: ${item._id}` });
-      }
-    }
+//     for (const item of result) {
+//       const classExists = await Class.findById(item._id);
+//       if (!classExists) {
+//         return res.status(400).json({ success: false, message: `Class not found for ID: ${item._id}` });
+//       }
+//     }
     
-    existingResult.result = result;
-    await existingResult.save();
+//     existingResult.result = result;
+//     await existingResult.save();
 
-    res.status(200).json({ success: true, message: "Result updated successfully", data: existingResult });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
-  }
-});
+//     res.status(200).json({ success: true, message: "Result updated successfully", data: existingResult });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Server error", error: error.message });
+//   }
+// });
 
 // Delete result
 const deleteResult = asyncHandler(async (req, res) => {
