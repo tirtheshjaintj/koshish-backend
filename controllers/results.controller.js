@@ -255,7 +255,6 @@ module.exports = {
   getResultByEventId,
   getResultById,
   createResult,
-  updateResult,
   deleteResult,
   declareResultForEvent,
   finalResult
