@@ -300,9 +300,6 @@ const deleteEvent = asyncHandler(async (req, res) => {
 
 const getAllEventsForClass = asyncHandler(async (req, res) => {
   const classId = req.user._id;
-
-  console.log({user : req.user})
-
   
   try {
     const classInstance   = await Class.findById(classId);
@@ -315,7 +312,7 @@ const getAllEventsForClass = asyncHandler(async (req, res) => {
     }
     
 
-    const events = await Event.find({ is_active: true , type:classInstance.type });
+    const events = await Event.find({ is_active: true , type:classInstance.type }).populate("convenor");
     
     const currentYear = new Date().getFullYear();
 
