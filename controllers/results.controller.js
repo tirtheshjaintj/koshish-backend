@@ -17,7 +17,7 @@ const getResultByEventId = asyncHandler(async (req, res) => {
     }
     const result = await Result.findOne({ eventId, year :  parseInt(year)}).populate("eventId").populate("result");
     if (!result) {
-      return res.status(404).json({ success: false, message: "Result not found for this event",event:eventExists});
+      return res.status(404).json({ success: false, message: "Result not found for this event",data:eventExists});
     }
 
     res.status(200).json({ success: true, data: result });
@@ -58,10 +58,11 @@ const createResult = asyncHandler(async (req, res) => {
       
     }
 
-    let existingResult = await Result.findOne({ eventId });
+    let existingResult = await Result.findOne({ eventId , year : parseInt(new Date().getFullYear())});
     if (existingResult) {
       
       existingResult.result = result;
+      existingResult.year = existingResult.year ||  parseInt(new Date().getFullYear());
       await existingResult.save();
       return res.status(200).json({ success: true, message: "Result Updated successfully" });
     }
