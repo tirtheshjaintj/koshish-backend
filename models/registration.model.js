@@ -41,6 +41,10 @@ const registrationSchema = new mongoose.Schema({
         type:Boolean,
         default:true
     },
+    isPresent:{
+        type:Boolean,
+        default:false
+    },
     year:{
         type: Number,
         required: [true, "Year is required"],
