@@ -1,6 +1,6 @@
 const express = require("express");
 const { body, param } = require("express-validator");
-const { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent, getAllEventsForClass } = require("../controllers/event.controller.js");
+const { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent, getAllEventsForClass, duplicateEventsAsSenior } = require("../controllers/event.controller.js");
 const { validate } = require("../middlewares/validate.js");
 const { restrictLogIn } = require("../middlewares/authCheck.js");
 
@@ -27,6 +27,12 @@ router.post(
 
 
 router.get("/", getAllEvents);
+
+
+
+router.get('/class',
+    restrictLogIn
+    , getAllEventsForClass);
 
 
 router.get(
@@ -65,9 +71,6 @@ router.delete(
     deleteEvent
 );
 
-router.get('/class',
-    restrictLogIn,
-    getAllEventsForClass
-);
+
 
 module.exports = router;

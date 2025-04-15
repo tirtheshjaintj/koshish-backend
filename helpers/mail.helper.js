@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendMail(subject, receiver, text, html) {
+    console.log(receiver);
     const mailOptions = {
         from: process.env.GMAIL_USER,
         to: receiver,
